@@ -5,6 +5,7 @@ import com.example.myecommerce.entity.User;
 import com.example.myecommerce.entity.OrderItem;
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.repository.OrderRepository;
+import com.example.myecommerce.repository.UserRepository;
 import com.example.myecommerce.service.UserActivityService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,13 +19,16 @@ public class OrderService {
     private final UserService userService;
     private final UserActivityService userActivityService;
     private final ProductService productService;
+    private final UserRepository userRepository;
 
     public OrderService(OrderRepository orderRepository, UserService userService, 
-                       UserActivityService userActivityService, ProductService productService) {
+                       UserActivityService userActivityService, ProductService productService,
+                       UserRepository userRepository) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.userActivityService = userActivityService;
         this.productService = productService;
+        this.userRepository = userRepository;
     }
 
     public List<Order> getOrderHistory(String username) {
@@ -37,7 +41,7 @@ public class OrderService {
     }
 
     public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+        return orderRepository.findAllByOrderByOrderDateDesc();
     }
 
     @Transactional
@@ -60,6 +64,11 @@ public class OrderService {
         if (!"已取消".equals(oldStatus) && "已取消".equals(status)) {
             System.out.println("Refunding user balance for cancelled order");
             refundUserBalance(order);
+        }
+        // 如果订单状态从已取消变为待处理，需要扣除用户资金（因为之前已退款）
+        else if ("已取消".equals(oldStatus) && "待处理".equals(status)) {
+            System.out.println("Deducting user balance for order status change from cancelled to pending");
+            deductUserBalance(order);
         }
     }
     
@@ -93,9 +102,24 @@ public class OrderService {
         
         // 退还资金给用户
         user.setBalance(user.getBalance().add(totalAmount));
-        userService.saveUserWithoutEncryption(user);
+        userRepository.save(user);
         
         System.out.println("User balance after refund: " + user.getBalance());
+    }
+    
+    // 扣除用户资金
+    private void deductUserBalance(Order order) {
+        User user = order.getUser();
+        BigDecimal totalAmount = order.getTotalAmount();
+        
+        System.out.println("Deducting " + totalAmount + " from user " + user.getUsername());
+        System.out.println("User balance before deduction: " + user.getBalance());
+        
+        // 扣除资金
+        user.setBalance(user.getBalance().subtract(totalAmount));
+        userRepository.save(user);
+        
+        System.out.println("User balance after deduction: " + user.getBalance());
     }
     
     public void recordPurchaseActivity(Order order) {

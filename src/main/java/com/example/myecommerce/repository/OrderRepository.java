@@ -11,4 +11,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     
     // 根据状态查找订单
     List<Order> findByStatus(String status);
+    
+    // 获取所有订单按订单日期降序排列
+    List<Order> findAllByOrderByOrderDateDesc();
 }

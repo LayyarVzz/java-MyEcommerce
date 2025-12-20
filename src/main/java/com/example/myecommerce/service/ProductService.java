@@ -3,13 +3,16 @@ package com.example.myecommerce.service;
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.OrderItem;
 import com.example.myecommerce.entity.Order;
+import com.example.myecommerce.entity.User;
 import com.example.myecommerce.repository.CartItemRepository;
 import com.example.myecommerce.repository.ProductRepository;
 import com.example.myecommerce.repository.OrderItemRepository;
 import com.example.myecommerce.repository.OrderRepository;
+import com.example.myecommerce.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -18,13 +21,16 @@ public class ProductService {
     private final CartItemRepository cartItemRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
 
-    public ProductService(ProductRepository productRepository, CartItemRepository cartItemRepository, 
-                         OrderItemRepository orderItemRepository, OrderRepository orderRepository) {
+    public ProductService(ProductRepository productRepository, CartItemRepository cartItemRepository,
+                          OrderItemRepository orderItemRepository, OrderRepository orderRepository,
+                          UserRepository userRepository) {
         this.productRepository = productRepository;
         this.cartItemRepository = cartItemRepository;
         this.orderItemRepository = orderItemRepository;
         this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
     }
 
     // 查询所有商品（包括已下架商品）
@@ -53,6 +59,7 @@ public class ProductService {
         return productRepository.findById(id).orElseThrow(() -> new RuntimeException("商品不存在：" + id));
     }
 
+    // 根据keyword搜索商品
     public List<Product> searchProducts(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return getAvailableProducts();
@@ -60,13 +67,13 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCaseAndDiscontinuedFalse(keyword);
     }
 
-    // 保存商品（初始化数据用）
-    public Product saveProduct(Product product) {
+    // 保存商品
+    public void saveProduct(Product product) {
         // 确保 discontinued 字段不为 null
         if (product.getDiscontinued() == null) {
             product.setDiscontinued(false);
         }
-        return productRepository.save(product);
+        productRepository.save(product);
     }
 
     // 下架商品并处理相关订单
@@ -75,25 +82,28 @@ public class ProductService {
         Product product = getProductById(id);
         product.setDiscontinued(true);
         productRepository.save(product);
-        
+
         // 删除购物车中的相关项
         cartItemRepository.deleteByProduct_Id(id);
-        
+
         // 处理相关的订单项
         List<OrderItem> orderItems = orderItemRepository.findByProduct(product);
         for (OrderItem item : orderItems) {
             Order order = item.getOrder();
             // 只处理待处理和已取消的订单
-            if ("待处理".equals(order.getStatus()) || "已取消".equals(order.getStatus())) {
+            if ("待处理".equals(order.getStatus())) {
                 order.setStatus("已取消");
                 orderRepository.save(order);
-            } 
+                
+                // 如果是从待处理变为已取消，需要退款
+                refundUserBalance(order);
+            }
             // 对于其他状态的订单，检查是否需要更新状态
             else if ("已确认".equals(order.getStatus()) || "已发货".equals(order.getStatus()) || "已送达".equals(order.getStatus())) {
                 // 检查订单中的其他商品是否都已下架
                 boolean allDiscontinued = true;
                 boolean hasAvailable = false;
-                
+
                 // 确保orderItems被加载
                 List<OrderItem> items = order.getOrderItems();
                 if (items != null) {
@@ -105,17 +115,30 @@ public class ProductService {
                         }
                     }
                 }
-                
+
                 if (allDiscontinued) {
                     // 所有商品都已下架
                     order.setStatus("商品已下架");
                     orderRepository.save(order);
-                } else if (hasAvailable) {
+                    // 如果是因为商品下架导致订单取消，需要退款
+                    refundUserBalance(order);
+                } else {
                     // 部分商品下架
                     order.setStatus("部分商品下架");
                     orderRepository.save(order);
                 }
             }
         }
+    }
+    
+    // 退还用户资金
+    private void refundUserBalance(Order order) {
+        User user = order.getUser();
+        BigDecimal totalAmount = order.getTotalAmount();
+
+        // 退还资金给用户
+        user.setBalance(user.getBalance().add(totalAmount));
+        userRepository.save(user);
+        System.out.println("Refunded " + totalAmount + " to user " + user.getUsername());
     }
 }

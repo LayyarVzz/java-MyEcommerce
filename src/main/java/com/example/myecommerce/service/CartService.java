@@ -40,7 +40,7 @@ public class CartService {
     public void addToCart(String username, Long productId, int quantity) {
         User user = userService.getCurrentUser(username);
         Product product = productService.getProductById(productId);
-        
+
         // 检查商品是否存在
         if (product == null) {
             throw new RuntimeException("商品未找到");
@@ -60,7 +60,7 @@ public class CartService {
             newItem.setQuantity(quantity);
             cartItemRepository.save(newItem);
         }
-        
+
         // 记录用户活动
         userActivityService.recordAddToCart(user, product);
     }
@@ -114,11 +114,9 @@ public class CartService {
     public Order createOrderFromCart(String username, Long addressId) {
         User user = userService.getCurrentUser(username);
         List<CartItem> cartItems = cartItemRepository.findByUser(user);
-
         if (cartItems.isEmpty()) {
             throw new RuntimeException("购物车为空，无法创建订单");
         }
-
         // 计算总金额
         BigDecimal totalAmount = BigDecimal.ZERO;
         for (CartItem item : cartItems) {
@@ -126,19 +124,16 @@ public class CartService {
                     item.getProduct().getPrice().multiply(new BigDecimal(item.getQuantity()))
             );
         }
-
         // 检查余额
         if (user.getBalance().compareTo(totalAmount) < 0) {
             throw new RuntimeException("余额不足，无法完成购买");
         }
-
         // 创建订单
         Order order = new Order();
         order.setUser(user);
         order.setOrderDate(LocalDateTime.now());
         order.setTotalAmount(totalAmount);
         order.setStatus("待处理");
-
         // 设置收货地址信息
         if (addressId != null) {
             Address address = addressService.getAddressById(addressId);
@@ -155,10 +150,8 @@ public class CartService {
                 order.setDeliveryAddress(defaultAddress.getAddress());
             }
         }
-
         // 保存订单
         order = orderRepository.save(order);
-
         // 创建订单项
         for (CartItem cartItem : cartItems) {
             OrderItem orderItem = new OrderItem();
@@ -168,21 +161,18 @@ public class CartService {
             orderItem.setPrice(cartItem.getProduct().getPrice());
             orderItemRepository.save(orderItem);
         }
-
         // 扣除用户资金
         user.setBalance(user.getBalance().subtract(totalAmount));
         userService.saveUserWithoutEncryption(user);
-
         // 记录购买活动
         for (CartItem cartItem : cartItems) {
             userActivityService.recordProductPurchase(
-                user,
-                cartItem.getProduct(),
-                order,
-                cartItem.getProduct().getPrice().doubleValue() * cartItem.getQuantity()
+                    user,
+                    cartItem.getProduct(),
+                    order,
+                    cartItem.getProduct().getPrice().doubleValue() * cartItem.getQuantity()
             );
         }
-        
         return order;
     }
 }
