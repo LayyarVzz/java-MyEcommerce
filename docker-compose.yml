@@ -1,0 +1,43 @@
+services:
+  # MySQL 服务
+  mysql:
+    image: mysql:8.0.39
+    container_name: ecommerce-mysql
+    restart: always
+    environment:
+      # 数据库根密码
+      MYSQL_ROOT_PASSWORD: mysql
+      # 自动创建数据库
+      MYSQL_DATABASE: ecommerce_db
+      # 字符集配置
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      # 持久化数据（容器删除后数据不丢失）
+      - mysql-data:/var/lib/mysql
+    networks:
+      - ecommerce-network
+
+  # Spring Boot 应用服务
+  app:
+    build: .
+    container_name: ecommerce-app
+    restart: always
+    ports:
+      - "8080:8080"
+    # 依赖 MySQL 服务，确保先启动 MySQL
+    depends_on:
+      - mysql
+    networks:
+      - ecommerce-network
+
+# 网络配置（让两个容器在同一网络，可互相访问）
+networks:
+  ecommerce-network:
+    driver: bridge
+
+# 数据卷（持久化 MySQL 数据）
+volumes:
+  mysql-data:
