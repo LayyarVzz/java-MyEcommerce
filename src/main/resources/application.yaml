@@ -1,0 +1,27 @@
+# ?????
+server:
+  port: 8080
+
+spring:
+  application:
+    name: MyEcommerce
+  # ????????????mysql?
+  datasource:
+    url: jdbc:mysql://localhost:3306/ecommerce_db
+    username: root
+    password: mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # JPA ??
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+  # Thymeleaf ???????????
+  thymeleaf:
+    cache: false
+# ???????SQL?
+logging.level.org.hibernate.SQL: debug

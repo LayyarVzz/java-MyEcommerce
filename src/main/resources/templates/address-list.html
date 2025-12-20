@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>收货地址管理 - 电商网站</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/products">电商网站</a>
+        <div class="navbar-nav">
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/products">商品管理</a>
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/orders">订单管理</a>
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/reports">销售报表</a>
+            <a class="nav-link" href="/products">商品列表</a>
+            <a class="nav-link" href="/cart">我的购物车</a>
+            <a class="nav-link" href="/orders">我的订单</a>
+            <a class="nav-link" href="/addresses">收货地址</a>
+            <span class="nav-link text-light">欢迎，[[${username}]]，余额：<span th:text="'¥' + ${userBalance}">¥0.00</span></span>
+            <a class="nav-link text-light" href="/logout">退出登录</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>收货地址管理</h2>
+        <a th:if="${canAddMore}" href="/addresses/add" class="btn btn-primary">新增地址</a>
+    </div>
+
+    <div th:if="${!canAddMore}" class="alert alert-warning">
+        您已达到地址数量上限（3个），如需添加新地址请先删除现有地址。
+    </div>
+
+    <div th:if="${#lists.isEmpty(addresses)}" class="alert alert-info">
+        您还没有收货地址，<a href="/addresses/add">点击此处添加</a>。
+    </div>
+
+    <div th:unless="${#lists.isEmpty(addresses)}">
+        <div class="row">
+            <div th:each="address : ${addresses}" class="col-md-6 mb-3">
+                <div class="card" th:classappend="${address.isDefault} ? 'border-primary border-2'">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title" th:text="${address.contactName}">联系人</h5>
+                            <span th:if="${address.isDefault}" class="badge bg-primary">默认地址</span>
+                        </div>
+                        <p class="card-text">
+                            <strong>联系电话：</strong><span th:text="${address.phone}">电话</span><br>
+                            <strong>收货地址：</strong><span th:text="${address.address}">地址</span>
+                        </p>
+                        <div class="btn-group" role="group">
+                            <a th:href="@{/addresses/edit/{id}(id=${address.id})}"
+                               class="btn btn-sm btn-primary">编辑</a>
+                            <a th:href="@{/addresses/default/{id}(id=${address.id})}"
+                               th:unless="${address.isDefault}"
+                               class="btn btn-sm btn-success">设为默认</a>
+                            <a th:href="@{/addresses/delete/{id}(id=${address.id})}"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('确定要删除这个地址吗？')">删除</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

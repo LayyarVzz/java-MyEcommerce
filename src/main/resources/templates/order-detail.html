@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单详情 - 电商网站</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/products">电商网站</a>
+        <div class="navbar-nav">
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/products">商品管理</a>
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/orders">订单管理</a>
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/reports">销售报表</a>
+            <a class="nav-link" href="/products">商品列表</a>
+            <a class="nav-link" href="/cart">我的购物车</a>
+            <a class="nav-link" href="/orders">我的订单</a>
+            <a class="nav-link" href="/addresses">收货地址</a>
+            <span class="nav-link text-light">欢迎，[[${username}]]，余额：<span th:text="'¥' + ${userBalance}">¥0.00</span></span>
+            <a class="nav-link text-light" href="/logout">退出登录</a>
+        </div>
+    </div>
+</nav>
+
+<!-- 订单详情内容 -->
+<div class="container mt-4">
+    <!-- 成功消息 -->
+    <div th:if="${param.checkout}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <h4>购买成功！</h4>
+        <p>您的订单已成功提交。商品将会发送至以下地址：</p>
+        <p><strong>收货人：</strong><span th:text="${order.contactName}"></span></p>
+        <p><strong>联系电话：</strong><span th:text="${order.contactPhone}"></span></p>
+        <p><strong>收货地址：</strong><span th:text="${order.deliveryAddress}"></span></p>
+        <p>我们会尽快为您发货，请保持电话畅通。</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <h2>订单详情</h2>
+    <div th:if="${order}">
+        <div class="card">
+            <div class="card-header">
+                <h5>订单信息</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>订单号:</strong> <span th:text="${order.id}">1</span></p>
+                <p><strong>下单时间:</strong> <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2023-01-01 12:00</span>
+                </p>
+                <p><strong>总金额:</strong> <span th:text="'¥' + ${order.totalAmount}">¥0.00</span></p>
+                <p><strong>状态:</strong> 
+                    <span th:switch="${order.status}">
+                        <span th:case="'待处理'" class="badge bg-warning">待处理</span>
+                        <span th:case="'已确认'" class="badge bg-info">已确认</span>
+                        <span th:case="'已发货'" class="badge bg-primary">已发货</span>
+                        <span th:case="'已送达'" class="badge bg-success">已送达</span>
+                        <span th:case="'已取消'" class="badge bg-danger">已取消</span>
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>商品清单</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>商品名称</th>
+                        <th>单价</th>
+                        <th>数量</th>
+                        <th>小计</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${order.orderItems}">
+                        <td th:text="${item.product.name}">商品名称</td>
+                        <td th:text="'¥' + ${item.price}">¥0.00</td>
+                        <td th:text="${item.quantity}">1</td>
+                        <td th:text="'¥' + ${item.price * item.quantity}">¥0.00</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>收货信息</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>收货人：</strong> <span th:text="${order.contactName}">收货人</span></p>
+                <p><strong>联系电话：</strong> <span th:text="${order.contactPhone}">电话</span></p>
+                <p><strong>收货地址：</strong> <span th:text="${order.deliveryAddress}">地址</span></p>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="/orders" class="btn btn-secondary">返回订单列表</a>
+        </div>
+    </div>
+    <div th:unless="${order}" class="alert alert-warning">
+        未找到订单信息。
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>用户注册 - OnlineShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center" style="height:100vh">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-sm-10 col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="text-center mb-4">创建新账户</h4>
+
+                    <!-- 同步表单：默认 submit，浏览器负责跳转 -->
+                    <form method="post" th:action="@{/register}">
+                        <input class="form-control mb-3" name="username" placeholder="用户名" required>
+                        <input type="password" class="form-control mb-3" name="password" placeholder="密码"
+                               required>
+                        <button class="btn btn-success w-100" type="submit">注册</button>
+                        <div class="text-center mt-3">
+                            已有账号？<a th:href="@{/login}">立即登录</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

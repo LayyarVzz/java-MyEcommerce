@@ -1,0 +1,70 @@
+<!-- templates/admin/order-list.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>订单管理 - 电商网站</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/products">电商网站</a>
+        <div class="navbar-nav">
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/products">商品管理</a>
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/orders">订单管理</a>
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/reports">销售报表</a>
+            <a class="nav-link" href="/products">商品列表</a>
+            <a class="nav-link" href="/cart">我的购物车</a>
+            <a class="nav-link" href="/orders">我的订单</a>
+            <a class="nav-link" href="/addresses">收货地址</a>
+            <span class="nav-link text-light">欢迎，[[${username}]]，余额：<span th:text="'¥' + ${userBalance}">¥0.00</span></span>
+            <a class="nav-link text-light" href="/logout">退出登录</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>订单管理</h2>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>订单号</th>
+            <th>用户</th>
+            <th>下单时间</th>
+            <th>总金额</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="order : ${orders}">
+            <td th:text="${order.id}">1</td>
+            <td th:text="${order.user.username}">用户名</td>
+            <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm')}">2023-01-01 12:00</td>
+            <td th:text="'¥' + ${order.totalAmount}">¥0.00</td>
+            <td>
+                <span th:switch="${order.status}">
+                    <span th:case="'待处理'" class="badge bg-warning">待处理</span>
+                    <span th:case="'已确认'" class="badge bg-info">已确认</span>
+                    <span th:case="'已发货'" class="badge bg-primary">已发货</span>
+                    <span th:case="'已送达'" class="badge bg-success">已送达</span>
+                    <span th:case="'已取消'" class="badge bg-danger">已取消</span>
+                </span>
+            </td>
+            <td>
+                <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-sm btn-primary">详情</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
