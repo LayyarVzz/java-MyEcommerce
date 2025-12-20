@@ -17,6 +17,8 @@
             <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
                class="nav-link" href="/admin/orders">订单管理</a>
             <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
+               class="nav-link" href="/admin/customers">客户管理</a>
+            <a th:if="${#authentication.principal.authorities.toString().contains('ADMIN')}"
                class="nav-link" href="/admin/reports">销售报表</a>
             <a class="nav-link" href="/products">商品列表</a>
             <a class="nav-link" href="/cart">我的购物车</a>

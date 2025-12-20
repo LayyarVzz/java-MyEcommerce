@@ -27,7 +27,7 @@ public class Order {
     private BigDecimal totalAmount;
 
     @Column(nullable = false)
-    private String status; // 订单状态：待处理, 已确认, 已发货, 已送达, 已取消
+    private String status; // 订单状态：待处理, 已确认, 已发货, 已送达, 已取消, 部分商品下架, 商品已下架
 
     // 收货地址信息
     @Column(name = "contact_name")
@@ -39,6 +39,11 @@ public class Order {
     @Column(name = "delivery_address")
     private String deliveryAddress;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
+    
+    // Getter方法
+    public List<OrderItem> getItems() {
+        return orderItems;
+    }
 }

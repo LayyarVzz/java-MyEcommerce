@@ -73,10 +73,10 @@ public class ProductAdminController {
         return "redirect:/admin/products";
     }
 
-    // 删除商品
-    @GetMapping("/delete/{id}")
-    public String deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
+    // 下架商品
+    @PostMapping("/{id}")
+    public String discontinueProduct(@PathVariable Long id) {
+        productService.discontinueProduct(id);
         return "redirect:/admin/products";
     }
 }

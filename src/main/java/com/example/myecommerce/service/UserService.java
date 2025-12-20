@@ -2,6 +2,8 @@ package com.example.myecommerce.service;
 
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,6 +56,12 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    // 保存用户（不加密密码）
+    public User saveUserWithoutEncryption(User user) {
+        System.out.println("Saving user without encryption: " + user.getUsername() + ", balance: " + user.getBalance());
+        return userRepository.save(user);
+    }
+
     public User updateUser(User user) {
         return userRepository.save(user);
     }
@@ -66,5 +74,10 @@ public class UserService implements UserDetailsService {
     // 通过ID获取用户
     public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
+    }
+    
+    // 获取所有用户（分页）
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 }

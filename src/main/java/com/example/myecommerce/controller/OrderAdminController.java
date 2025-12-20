@@ -52,7 +52,7 @@ public class OrderAdminController {
     // 更新订单状态
     @PostMapping("/{id}/status")
     public String updateOrderStatus(@PathVariable Long id,
-                                    @RequestParam String status) {
+                                  @RequestParam String status) {
         orderService.updateOrderStatus(id, status);
         return "redirect:/admin/orders/" + id;
     }

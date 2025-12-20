@@ -32,4 +32,12 @@ public class User {
     // 添加资金属性
     @Column(nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
+    
+    @PostLoad
+    public void onLoad() {
+        // 确保balance不会为null
+        if (this.balance == null) {
+            this.balance = BigDecimal.ZERO;
+        }
+    }
 }

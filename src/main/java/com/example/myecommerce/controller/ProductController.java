@@ -4,6 +4,7 @@ import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.service.ProductService;
 import com.example.myecommerce.service.UserService;
+import com.example.myecommerce.service.UserActivityService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,10 +17,12 @@ import java.util.List;
 public class ProductController {
     private final ProductService productService;
     private final UserService userService;
+    private final UserActivityService userActivityService;
 
-    public ProductController(ProductService productService, UserService userService) {
+    public ProductController(ProductService productService, UserService userService, UserActivityService userActivityService) {
         this.productService = productService;
         this.userService = userService;
+        this.userActivityService = userActivityService;
     }
 
     // 商品列表页
@@ -34,8 +37,11 @@ public class ProductController {
         if (search != null && !search.trim().isEmpty()) {
             products = productService.searchProducts(search);
         } else {
-            products = productService.getAllProducts();
+            // 仅显示未下架商品
+            products = productService.getAvailableProducts();
         }
+        
+        System.out.println("Final products sent to view: " + products.size());
 
         User user = userService.getCurrentUser(username);
         model.addAttribute("products", products);

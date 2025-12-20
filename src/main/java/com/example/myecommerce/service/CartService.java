@@ -18,38 +18,51 @@ public class CartService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final AddressService addressService;
+    private final UserActivityService userActivityService;
 
     public CartService(CartItemRepository cartItemRepository,
                        ProductService productService,
                        UserService userService,
                        OrderRepository orderRepository,
                        OrderItemRepository orderItemRepository,
-                       AddressService addressService) {
+                       AddressService addressService,
+                       UserActivityService userActivityService) {
         this.cartItemRepository = cartItemRepository;
         this.productService = productService;
         this.userService = userService;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.addressService = addressService;
+        this.userActivityService = userActivityService;
     }
 
     // 加入购物车
-    public void addToCart(String username, Long productId, Integer quantity) {
-        // 获取当前用户和商品
+    public void addToCart(String username, Long productId, int quantity) {
         User user = userService.getCurrentUser(username);
         Product product = productService.getProductById(productId);
-
-        // 检查是否已加入购物车：已存在则更新数量，不存在则新增
-        CartItem cartItem = cartItemRepository.findByUserAndProduct(user, product);
-        if (cartItem != null) {
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-        } else {
-            cartItem = new CartItem();
-            cartItem.setUser(user);
-            cartItem.setProduct(product);
-            cartItem.setQuantity(quantity);
+        
+        // 检查商品是否存在
+        if (product == null) {
+            throw new RuntimeException("商品未找到");
         }
-        cartItemRepository.save(cartItem);
+
+        // 检查是否已在购物车中
+        CartItem existingItem = cartItemRepository.findByUserAndProduct(user, product);
+        if (existingItem != null) {
+            // 更新数量
+            existingItem.setQuantity(existingItem.getQuantity() + quantity);
+            cartItemRepository.save(existingItem);
+        } else {
+            // 新增购物车项
+            CartItem newItem = new CartItem();
+            newItem.setUser(user);
+            newItem.setProduct(product);
+            newItem.setQuantity(quantity);
+            cartItemRepository.save(newItem);
+        }
+        
+        // 记录用户活动
+        userActivityService.recordAddToCart(user, product);
     }
 
     // 获取用户购物车
@@ -95,7 +108,7 @@ public class CartService {
     public void deductBalance(String username, BigDecimal amount) {
         User user = userService.getCurrentUser(username);
         user.setBalance(user.getBalance().subtract(amount));
-        userService.saveUser(user); // 注意：这里需要修改UserService的saveUser方法为public
+        userService.saveUserWithoutEncryption(user);
     }
 
     public Order createOrderFromCart(String username, Long addressId) {
@@ -158,8 +171,18 @@ public class CartService {
 
         // 扣除用户资金
         user.setBalance(user.getBalance().subtract(totalAmount));
-        // 这里需要UserService提供更新用户的方法
+        userService.saveUserWithoutEncryption(user);
 
+        // 记录购买活动
+        for (CartItem cartItem : cartItems) {
+            userActivityService.recordProductPurchase(
+                user,
+                cartItem.getProduct(),
+                order,
+                cartItem.getProduct().getPrice().doubleValue() * cartItem.getQuantity()
+            );
+        }
+        
         return order;
     }
 }
