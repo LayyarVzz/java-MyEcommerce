@@ -4,74 +4,272 @@
     <meta charset="UTF-8">
     <title>收货地址管理 - 电商网站</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .navbar {
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            transform: translateY(-1px);
+        }
+        .page-header {
+            background: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        .card.border-primary {
+            border: 2px solid #667eea !important;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+        }
+        .card.border-primary:hover {
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .card-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .btn {
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: var(--primary-gradient);
+            opacity: 0.9;
+        }
+        .btn-sm {
+            padding: 6px 15px;
+            font-size: 0.875rem;
+        }
+        .alert {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .alert-warning {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            color: #856404;
+        }
+        .alert-info {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+        }
+        .badge {
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: 600;
+            background: var(--primary-gradient) !important;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+        .user-balance {
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .btn-group {
+            gap: 8px;
+        }
+        .btn-group .btn {
+            border-radius: 50px !important;
+        }
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 1.5rem 0;
+            }
+            .col-md-6 {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
+
 <!-- 导航栏 -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="/products">电商网站</a>
-        <div class="navbar-nav">
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/products">商品管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/orders">订单管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/customers">客户管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/reports">销售报表</a>
-            <a class="nav-link" href="/products">商品列表</a>
-            <a class="nav-link" href="/cart">我的购物车</a>
-            <a class="nav-link" href="/orders">我的订单</a>
-            <a class="nav-link" href="/addresses">收货地址</a>
-            <span class="nav-link text-light">欢迎，[[${username}]]，余额：<span
-                    th:text="'¥' + ${userBalance}">¥0.00</span></span>
-            <a class="nav-link text-light" href="/logout">退出登录</a>
+        <a class="navbar-brand" href="/products">
+            <i class="bi bi-shop"></i>
+            电商网站
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/products">
+                        <i class="bi bi-box-seam me-1"></i>商品管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="bi bi-list-ul me-1"></i>订单管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/customers">
+                        <i class="bi bi-people me-1"></i>客户管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/reports">
+                        <i class="bi bi-graph-up me-1"></i>销售报表
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/products">
+                        <i class="bi bi-grid me-1"></i>商品列表
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart">
+                        <i class="bi bi-cart3 me-1"></i>购物车
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">
+                        <i class="bi bi-receipt me-1"></i>订单
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/addresses">
+                        <i class="bi bi-geo-alt me-1"></i>地址
+                    </a>
+                </li>
+            </ul>
+            <div class="navbar-nav ms-3">
+                <div class="user-info">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="text-light">[[${username}]]</span>
+                    <span class="text-light">余额：<span class="user-balance" th:text="'¥' + ${userBalance}">¥0.00</span></span>
+                    <a href="/logout" class="text-light text-decoration-none">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>收货地址管理</h2>
-        <a th:if="${canAddMore}" href="/addresses/add" class="btn btn-primary">新增地址</a>
+<!-- 页面头部 -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="mb-2">收货地址管理</h1>
+        <p class="text-muted mb-0">管理您的收货地址，最多可添加3个地址</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 mb-0">我的收货地址</h2>
+        <a th:if="${canAddMore}" href="/addresses/add" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>新增地址
+        </a>
     </div>
 
     <div th:if="${!canAddMore}" class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
         您已达到地址数量上限（3个），如需添加新地址请先删除现有地址。
     </div>
 
-    <div th:if="${#lists.isEmpty(addresses)}" class="alert alert-info">
-        您还没有收货地址，<a href="/addresses/add">点击此处添加</a>。
+    <div th:if="${#lists.isEmpty(addresses)}" class="alert alert-info text-center py-5">
+        <i class="bi bi-geo-alt fs-1 text-muted"></i>
+        <h4 class="mt-3 text-muted">您还没有收货地址</h4>
+        <a href="/addresses/add" class="btn btn-primary mt-3">
+            <i class="bi bi-plus-circle me-2"></i>点击此处添加
+        </a>
     </div>
 
-    <div th:unless="${#lists.isEmpty(addresses)}">
-        <div class="row">
-            <div th:each="address : ${addresses}" class="col-md-6 mb-3">
-                <div class="card" th:classappend="${address.isDefault} ? 'border-primary border-2'">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <h5 class="card-title" th:text="${address.contactName}">联系人</h5>
-                            <span th:if="${address.isDefault}" class="badge bg-primary">默认地址</span>
-                        </div>
-                        <p class="card-text">
-                            <strong>联系电话：</strong><span th:text="${address.phone}">电话</span><br>
-                            <strong>收货地址：</strong><span th:text="${address.address}">地址</span>
-                        </p>
-                        <div class="btn-group" role="group">
-                            <a th:href="@{/addresses/edit/{id}(id=${address.id})}"
-                               class="btn btn-sm btn-primary">编辑</a>
-                            <a th:href="@{/addresses/default/{id}(id=${address.id})}"
-                               th:unless="${address.isDefault}"
-                               class="btn btn-sm btn-success">设为默认</a>
-                            <a th:href="@{/addresses/delete/{id}(id=${address.id})}"
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('确定要删除这个地址吗？')">删除</a>
-                        </div>
+    <div th:unless="${#lists.isEmpty(addresses)}" class="row g-4">
+        <div th:each="address : ${addresses}" class="col-md-6 col-lg-4">
+            <div class="card h-100" th:classappend="${address.isDefault} ? 'border-primary'">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0" th:text="${address.contactName}">联系人</h5>
+                        <span th:if="${address.isDefault}" class="badge"><i class="bi bi-star-fill me-1"></i>默认地址</span>
+                    </div>
+                    <p class="card-text flex-grow-1">
+                        <i class="bi bi-telephone me-2 text-muted"></i><span th:text="${address.phone}">电话</span><br>
+                        <i class="bi bi-geo-alt me-2 text-muted"></i><span th:text="${address.address}">地址</span>
+                    </p>
+                    <div class="btn-group mt-3" role="group">
+                        <a th:href="@{/addresses/edit/{id}(id=${address.id})}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-pencil me-1"></i>编辑
+                        </a>
+                        <a th:href="@{/addresses/default/{id}(id=${address.id})}"
+                           th:unless="${address.isDefault}"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-star me-1"></i>设为默认
+                        </a>
+                        <a th:href="@{/addresses/delete/{id}(id=${address.id})}"
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('确定要删除这个地址吗？')">
+                            <i class="bi bi-trash me-1"></i>删除
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

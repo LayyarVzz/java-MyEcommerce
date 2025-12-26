@@ -2,70 +2,280 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>结算 - 电商网站</title>
+    <title>结算订单 - 电商网站</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .navbar {
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header {
+            background: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .account-card {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .account-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        .account-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem;
+        }
+        .balance-amount {
+            color: #56ab2f;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .order-amount {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .address-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .address-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .address-card.selected {
+            border: 2px solid #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .form-check-input:checked {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 12px 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(86, 171, 47, 0.4);
+        }
+        .btn-secondary {
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+        .badge {
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-weight: 600;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        .user-balance {
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .no-address {
+            background: rgba(255, 243, 205, 0.5);
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-<!-- 导航栏 -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="/products">电商网站</a>
-        <div class="navbar-nav">
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/products">商品管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/orders">订单管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/customers">客户管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/reports">销售报表</a>
-            <a class="nav-link" href="/products">商品列表</a>
-            <a class="nav-link" href="/cart">我的购物车</a>
-            <a class="nav-link" href="/orders">我的订单</a>
-            <a class="nav-link" href="/addresses">收货地址</a>
-            <span class="nav-link text-light">欢迎，[[${username}]]，余额：<span
-                    th:text="'¥' + ${userBalance}">¥0.00</span></span>
-            <a class="nav-link text-light" href="/logout">退出登录</a>
+        <a class="navbar-brand" href="/products">
+            <i class="bi bi-shop"></i>
+            电商网站
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/products">
+                        <i class="bi bi-box-seam me-1"></i>商品管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="bi bi-list-ul me-1"></i>订单管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/customers">
+                        <i class="bi bi-people me-1"></i>客户管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/reports">
+                        <i class="bi bi-graph-up me-1"></i>销售报表
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/products">
+                        <i class="bi bi-grid me-1"></i>商品列表
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart">
+                        <i class="bi bi-cart3 me-1"></i>购物车
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">
+                        <i class="bi bi-receipt me-1"></i>订单
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/addresses">
+                        <i class="bi bi-geo-alt me-1"></i>地址
+                    </a>
+                </li>
+            </ul>
+            <div class="navbar-nav ms-3">
+                <div class="user-info">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="text-light">[[${username}]]</span>
+                    <span class="text-light">余额：<span class="user-balance" th:text="'¥' + ${userBalance}">¥0.00</span></span>
+                    <a href="/logout" class="text-light text-decoration-none">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
 
+<div class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="bi bi-credit-card fs-1 text-gradient"></i>
+                    <div>
+                        <h1 class="mb-0">结算订单</h1>
+                        <p class="text-muted mb-0">确认订单信息并完成支付</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container mt-4">
     <!-- 错误消息 -->
     <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
         <span th:text="${error}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
-    <h2>结算订单</h2>
-
     <!-- 余额信息 -->
-    <div class="card mb-3">
+    <div class="account-card mb-4">
+        <div class="account-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>账户信息</h5>
+                <i class="bi bi-wallet2 fs-4"></i>
+            </div>
+        </div>
         <div class="card-body">
-            <h5 class="card-title">账户信息</h5>
-            <p class="card-text">
-                <strong>账户余额:</strong> <span th:text="'¥' + ${userBalance}" class="text-success">¥0.00</span><br>
-                <strong>订单总额:</strong> <span th:text="'¥' + ${totalAmount}" class="text-danger">¥0.00</span><br>
-                <strong th:if="${hasSufficientBalance}" class="text-success">余额充足，可以完成购买</strong>
-                <strong th:unless="${hasSufficientBalance}" class="text-danger">余额不足，无法完成购买</strong>
-            </p>
+            <div class="row text-center">
+                <div class="col-12 col-md-6">
+                    <div class="mb-3">
+                        <div class="text-muted small mb-1">账户余额</div>
+                        <div class="balance-amount" th:text="'¥' + ${#numbers.formatDecimal(userBalance, 1, 2)}">¥0.00</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="mb-3">
+                        <div class="text-muted small mb-1">订单总额</div>
+                        <div class="order-amount" th:text="'¥' + ${#numbers.formatDecimal(totalAmount, 1, 2)}">¥0.00</div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <div th:if="${hasSufficientBalance}" class="text-success">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>余额充足，可以完成购买</strong>
+                </div>
+                <div th:unless="${hasSufficientBalance}" class="text-danger">
+                    <i class="bi bi-x-circle-fill me-2"></i>
+                    <strong>余额不足，无法完成购买</strong>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div th:if="${#lists.isEmpty(addresses)}" class="alert alert-warning">
-        您还没有收货地址，请先<a href="/addresses/add">添加收货地址</a>。
+    <div th:if="${#lists.isEmpty(addresses)}" class="no-address mb-4">
+        <i class="bi bi-geo-alt fs-1 text-warning"></i>
+        <h5 class="mt-2">您还没有收货地址</h5>
+        <p class="text-muted mb-3">请先添加收货地址后再进行结算</p>
+        <a href="/addresses/add" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>添加收货地址
+        </a>
     </div>
 
     <div th:unless="${#lists.isEmpty(addresses)}">
         <form th:action="@{/cart/checkout}" method="post" th:if="${hasSufficientBalance}">
             <div class="card mb-4">
-                <div class="card-header">
-                    <h5>选择收货地址</h5>
+                <div class="account-header">
+                    <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>选择收货地址</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div th:each="address : ${addresses}" class="col-md-6 mb-3">
-                            <div class="card">
+                    <div class="row g-3">
+                        <div th:each="address : ${addresses}" class="col-12 col-md-6">
+                            <div class="address-card" th:classappend="${address.isDefault} ? 'selected' : ''">
                                 <div class="card-body">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio"
@@ -73,11 +283,15 @@
                                                th:id="'address'+${address.id}"
                                                th:value="${address.id}"
                                                th:checked="${address.isDefault}">
-                                        <label class="form-check-label" th:for="'address'+${address.id}">
-                                            <strong th:text="${address.contactName}">联系人</strong>
-                                            (<span th:text="${address.phone}">电话</span>)<br>
-                                            <small th:text="${address.address}">地址</small>
-                                            <span th:if="${address.isDefault}" class="badge bg-primary ms-2">默认</span>
+                                        <label class="form-check-label w-100" th:for="'address'+${address.id}">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <strong th:text="${address.contactName}">联系人</strong>
+                                                    <span class="badge bg-secondary ms-2" th:text="${address.phone}">电话</span>
+                                                </div>
+                                                <span th:if="${address.isDefault}" class="badge bg-primary">默认</span>
+                                            </div>
+                                            <div class="text-muted" th:text="${address.address}">详细地址信息</div>
                                         </label>
                                     </div>
                                 </div>
@@ -85,20 +299,33 @@
                         </div>
                     </div>
 
-                    <a href="/addresses/add" class="btn btn-secondary">新增地址</a>
+                    <div class="text-center mt-4">
+                        <a href="/addresses/add" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-1"></i>新增地址
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="text-end">
-                <button type="submit" class="btn btn-success btn-lg">确认下单</button>
-                <a href="/cart" class="btn btn-secondary">返回购物车</a>
+            <div class="text-center">
+                <button type="submit" class="btn btn-success me-2">
+                    <i class="bi bi-check-circle me-2"></i>确认下单
+                </button>
+                <a href="/cart" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回购物车
+                </a>
             </div>
         </form>
 
         <div th:unless="${hasSufficientBalance}" class="alert alert-danger">
-            <h4>余额不足</h4>
-            <p>您的账户余额不足以支付本次订单，请充值后再试。</p>
-            <a href="/cart" class="btn btn-secondary">返回购物车</a>
+            <div class="text-center">
+                <i class="bi bi-exclamation-triangle-fill fs-1 text-danger d-block mb-3"></i>
+                <h4>余额不足</h4>
+                <p class="mb-3">您的账户余额不足以支付本次订单，请充值后再试。</p>
+                <a href="/cart" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i>返回购物车
+                </a>
+            </div>
         </div>
     </div>
 </div>

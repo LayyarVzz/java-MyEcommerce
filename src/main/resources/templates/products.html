@@ -4,78 +4,311 @@
     <meta charset="UTF-8">
     <title>商品列表 - 电商网站</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .navbar {
+            background: var(--primary-gradient) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header {
+            background: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-control {
+            border-radius: 50px;
+            border: 1px solid #dee2e6;
+            padding: 12px 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 2px 15px rgba(102, 126, 234, 0.2);
+        }
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-outline-secondary {
+            border-radius: 50px;
+            border: 1px solid #dee2e6;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        .btn-outline-secondary:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
         .card-img-top {
-            height: 200px;
+            height: 220px;
             object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .card:hover .card-img-top {
+            transform: scale(1.05);
+        }
+        .card-image-wrapper {
+            overflow: hidden;
+            position: relative;
+        }
+        .card-image-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .card:hover .card-image-wrapper::after {
+            opacity: 1;
+        }
+        .card-body {
+            padding: 1.5rem;
+            background: white;
+        }
+        .card-title {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+        .card-text {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+        .price-badge {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        .input-group {
+            border-radius: 50px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #dee2e6;
+        }
+        .input-group input {
+            border: none;
+            box-shadow: none !important;
+        }
+        .input-group button {
+            border-radius: 0 50px 50px 0 !important;
+            padding: 8px 20px;
+        }
+        .search-info {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+        .user-balance {
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 768px) {
+            .card-img-top {
+                height: 180px;
+            }
         }
     </style>
 </head>
 <body>
-<!-- 导航栏 -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="/products">电商网站</a>
-        <div class="navbar-nav">
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/products">商品管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/orders">订单管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/customers">客户管理</a>
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
-               class="nav-link" href="/admin/reports">销售报表</a>
-            <a class="nav-link" href="/products">商品列表</a>
-            <a class="nav-link" href="/cart">我的购物车</a>
-            <a class="nav-link" href="/orders">我的订单</a>
-            <a class="nav-link" href="/addresses">收货地址</a>
-            <span class="nav-link text-light">欢迎，[[${username}]]，余额：<span
-                    th:text="'¥' + ${userBalance}">¥0.00</span></span>
-            <a class="nav-link text-light" href="/logout">退出登录</a>
+        <a class="navbar-brand" href="/products">
+            <i class="bi bi-shop"></i>
+            电商网站
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/products">
+                        <i class="bi bi-box-seam me-1"></i>商品管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/orders">
+                        <i class="bi bi-list-ul me-1"></i>订单管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/customers">
+                        <i class="bi bi-people me-1"></i>客户管理
+                    </a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a class="nav-link" href="/admin/reports">
+                        <i class="bi bi-graph-up me-1"></i>销售报表
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/products">
+                        <i class="bi bi-grid me-1"></i>商品列表
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cart">
+                        <i class="bi bi-cart3 me-1"></i>购物车
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders">
+                        <i class="bi bi-receipt me-1"></i>订单
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/addresses">
+                        <i class="bi bi-geo-alt me-1"></i>地址
+                    </a>
+                </li>
+            </ul>
+            <div class="navbar-nav ms-3">
+                <div class="user-info">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="text-light">[[${username}]]</span>
+                    <span class="text-light">余额：<span class="user-balance" th:text="'¥' + ${userBalance}">¥0.00</span></span>
+                    <a href="/logout" class="text-light text-decoration-none">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </nav>
 
-<!-- 页面内容 -->
-<div class="container mt-4">
-    <h2>商品列表</h2>
-
-    <!-- 搜索框 -->
-    <form th:action="@{/products}" method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text" name="search" class="form-control" placeholder="搜索商品..." th:value="${searchKeyword}">
-            <button class="btn btn-outline-secondary" type="submit">搜索</button>
+<div class="page-header">
+    <div class="container">
+        <h1 class="text-center mb-3">发现精彩商品</h1>
+        <div class="search-container">
+            <form th:action="@{/products}" method="get">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="搜索您想要的商品..." th:value="${searchKeyword}">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
+</div>
 
-    <!-- 搜索结果提示 -->
-    <div th:if="${searchKeyword}" class="alert alert-info">
-        <span th:text="'搜索 '"></span>
-        <strong th:text="${searchKeyword}"></strong>
-        <span th:text="' 的结果，共找到 ' + ${#lists.size(products)} + ' 个商品'"></span>
-        <a th:href="@{/products}" class="ms-2">清除搜索</a>
+<div class="container">
+    <div th:if="${searchKeyword}" class="search-info mb-4">
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <i class="bi bi-search me-2"></i>
+                <span>搜索 "<strong th:text="${searchKeyword}"></strong>" 的结果</span>
+                <span class="badge bg-primary ms-2" th:text="${#lists.size(products)}"></span> 个商品
+            </div>
+            <a th:href="@{/products}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-x-lg me-1"></i>清除搜索
+            </a>
+        </div>
     </div>
 
-    <!-- 商品列表 -->
-    <div class="row mt-3">
-        <!-- 循环遍历商品 -->
-        <div th:each="product : ${products}" class="col-md-4 mb-4">
+    <div class="row" th:if="${#lists.isEmpty(products)}">
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <h4 class="mt-3 text-muted">暂无商品</h4>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div th:each="product : ${products}" class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="card h-100">
-                <img th:src="${product.imageUrl ?: '/upload/default.png'}"
-                     class="card-img-top"
-                     alt="${product.name}">
-                <div class="card-body">
+                <div class="card-image-wrapper">
+                    <img th:src="${product.imageUrl ?: '/upload/default.png'}"
+                         class="card-img-top"
+                         th:alt="${product.name}">
+                </div>
+                <div class="card-body d-flex flex-column">
                     <h5 class="card-title" th:text="${product.name}">商品名称</h5>
                     <p class="card-text" th:text="${product.description}">商品描述</p>
-                    <p class="card-text text-danger fw-bold" th:text="'¥' + ${product.price}">¥0.00</p>
-                    <!-- 加入购物车表单 -->
-                    <form th:action="@{/cart/add}" method="post">
-                        <input type="hidden" name="productId" th:value="${product.id}">
-                        <div class="input-group mb-3">
-                            <input type="number" name="quantity" class="form-control" value="1" min="1" max="10">
-                            <button type="submit" class="btn btn-primary">加入购物车</button>
-                        </div>
-                    </form>
+                    <div class="mt-auto">
+                        <div class="price-badge" th:text="'¥' + ${product.price}">¥0.00</div>
+                        <form th:action="@{/cart/add}" method="post">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <div class="input-group">
+                                <input type="number" name="quantity" class="form-control" value="1" min="1" max="99" style="max-width: 80px;">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-cart-plus me-1"></i>加入购物车
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
