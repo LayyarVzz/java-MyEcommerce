@@ -6,10 +6,26 @@ spring:
     name: MyEcommerce
   # mysql
   datasource:
-    url: jdbc:mysql://localhost:3306/ecommerce_db
+    #    url: jdbc:mysql://localhost:3306/ecommerce_db
+    url: jdbc:mysql://mysql:3306/ecommerce_db
     username: root
     password: mysql
     driver-class-name: com.mysql.cj.jdbc.Driver
+  # mail
+  mail:
+    protocol: smtps
+    host: smtp.qq.com
+    port: 465
+    username: 1486234558@qq.com
+    password: fxhezsetnayogfcd
+    properties:
+      "[mail.smtp.socketFactory.class]": javax.net.ssl.SSLSocketFactory
+      "[mail.smtp.socketFactory.fallback]": false
+      "[mail.smtp.socketFactory.port]": 465
+      "[mail.smtp.connectiontimeout]": 5000
+      "[mail.smtp.timeout]": 3000
+      "[mail.smtp.writetimeout]": 5000
+    nickname: MyEcommerce
   # JPA
   jpa:
     hibernate:

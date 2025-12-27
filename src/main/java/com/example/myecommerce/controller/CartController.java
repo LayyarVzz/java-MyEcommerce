@@ -5,6 +5,7 @@ import com.example.myecommerce.entity.Order;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.service.AddressService;
 import com.example.myecommerce.service.CartService;
+import com.example.myecommerce.service.MailService;
 import com.example.myecommerce.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -21,13 +22,15 @@ public class CartController {
     private final CartService cartService;
     private final AddressService addressService;
     private final UserService userService;
+    private final MailService mailService;
 
     public CartController(CartService cartService,
                           AddressService addressService,
-                          UserService userService) {
+                          UserService userService, MailService mailService) {
         this.cartService = cartService;
         this.addressService = addressService;
         this.userService = userService;
+        this.mailService = mailService;
     }
 
     // 加入购物车
@@ -98,6 +101,10 @@ public class CartController {
 
             // 创建订单逻辑
             Order order = cartService.createOrderFromCart(username, addressId);
+
+            // 发送订单确认邮件
+            User user = userService.getCurrentUser(username);
+            mailService.sendOrderConfirm(user.getEmail(), order.getOrderNo(), order.getTotalAmount());
 
             // 清空购物车
             cartService.clearCart(username);

@@ -20,6 +20,7 @@ public class RegisterController {
     @PostMapping("/register")
     public String register(@RequestParam String username,
                            @RequestParam String password,
+                           @RequestParam String email,
                            Model model) {
         // 1. 简单重复校验
         if (userService.checkIfUserExists(username)) {   // 你也可以自己在 Repo 里写 exists 方法
@@ -31,6 +32,8 @@ public class RegisterController {
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);     // 明文传入，Service 里会 encode
+        // 新增email属性
+        user.setEmail(email);
 
         // 3. 保存
         userService.saveUser(user);

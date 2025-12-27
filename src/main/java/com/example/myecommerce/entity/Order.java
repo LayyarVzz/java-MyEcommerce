@@ -41,9 +41,13 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
-    
+
     // Getter方法
     public List<OrderItem> getItems() {
         return orderItems;
+    }
+
+    public String getOrderNo() {
+        return "ORD-" + id;
     }
 }

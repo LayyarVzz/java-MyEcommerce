@@ -20,6 +20,9 @@ public class User {
     @Column(nullable = false)
     private String password; // 密码（Spring Security 会加密）
 
+    @Column(nullable = false)
+    private String email;
+
     private String fullName; // 昵称
 
     @Column(nullable = false)
@@ -32,7 +35,7 @@ public class User {
     // 添加资金属性
     @Column(nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
-    
+
     @PostLoad
     public void onLoad() {
         // 确保balance不会为null

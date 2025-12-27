@@ -51,15 +51,15 @@ public class UserService implements UserDetailsService {
     }
 
     // 保存用户（初始化测试用户用）
-    public User saveUser(User user) {
+    public void saveUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     // 保存用户（不加密密码）
-    public User saveUserWithoutEncryption(User user) {
+    public void saveUserWithoutEncryption(User user) {
         System.out.println("Saving user without encryption: " + user.getUsername() + ", balance: " + user.getBalance());
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public User updateUser(User user) {
@@ -75,7 +75,7 @@ public class UserService implements UserDetailsService {
     public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
-    
+
     // 获取所有用户（分页）
     public Page<User> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);

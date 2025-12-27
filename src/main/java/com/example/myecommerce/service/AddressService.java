@@ -151,7 +151,7 @@ public class AddressService {
         Optional<Address> defaultAddress = addressRepository.findByUserAndIsDefaultTrue(user);
 
         // 如果没有默认地址，返回最早的地址
-        if (!defaultAddress.isPresent()) {
+        if (defaultAddress.isEmpty()) {
             List<Address> addresses = addressRepository.findByUser(user);
             if (!addresses.isEmpty()) {
                 return addresses.stream()
