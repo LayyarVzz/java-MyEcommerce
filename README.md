@@ -112,7 +112,7 @@
 
 1. 配置数据库连接（修改 `application.yaml`）
 2. 运行主类 `MyEcommerceApplication.java`
-3. 访问应用：http://134.175.18.182:8080
+3. 访问应用：http://134.175.18.182:8080/login
 
 ## 默认访问路径
 
