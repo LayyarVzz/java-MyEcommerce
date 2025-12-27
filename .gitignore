@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+/src/main/CLAUDE.md
+/src/main/resources/docs/frontend-beautification-guide.md
+/src/main/.claude/settings.local.json
