@@ -154,7 +154,7 @@
                                 <td><strong th:text="${customer.id}"></strong></td>
                                 <td th:text="${customer.username}"></td>
                                 <td th:text="${customer.fullName} ?: '未设置'"></td>
-                                <td><span class="badge" th:text="${customer.role}"></span></td>
+                                <td><span class="badge" th:classappend="${customer.role == 'ADMIN'} ? 'bg-danger' : 'bg-success'" th:text="${customer.role}"></span></td>
                                 <td th:text="'¥' + ${customer.balance}"></td>
                                 <td>
                                     <a th:href="@{/admin/customers/{id}(id=${customer.id})}" class="btn btn-sm btn-primary">
