@@ -6,11 +6,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserActivityRepository extends JpaRepository<UserActivity, Long> {
     List<UserActivity> findByUserIdOrderByTimestampDesc(Long userId);
     
     List<UserActivity> findAllByOrderByTimestampDesc();
+
+    Optional<UserActivity> findFirstByUserIdAndActivityTypeOrderByTimestampDesc(Long userId, String activityType);
     
     @Query("SELECT ua FROM UserActivity ua WHERE ua.user.id = :userId AND ua.activityType = 'VIEW_PRODUCT' ORDER BY ua.timestamp DESC")
     List<UserActivity> findViewActivitiesByUserId(@Param("userId") Long userId);

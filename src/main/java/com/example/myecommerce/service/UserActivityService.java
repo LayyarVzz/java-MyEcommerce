@@ -7,6 +7,7 @@ import com.example.myecommerce.entity.Order;
 import com.example.myecommerce.repository.UserActivityRepository;
 import com.example.myecommerce.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -34,7 +35,7 @@ public class UserActivityService {
         userActivityRepository.save(activity);
     }
 
-    public void recordProductBrowse(User user, String search, String category, String ipAddress) {
+    public UserActivity recordProductBrowse(User user, String search, String category, String ipAddress) {
         UserActivity activity = new UserActivity();
         activity.setUser(user);
         activity.setActivityType("BROWSE_PRODUCTS");
@@ -43,7 +44,25 @@ public class UserActivityService {
         activity.setIpAddress(ipAddress);
         activity.setDurationSeconds(0);
         activity.setTimestamp(LocalDateTime.now());
-        userActivityRepository.save(activity);
+        return userActivityRepository.save(activity);
+    }
+
+    @Transactional
+    public void recordLatestProductBrowseDuration(User user, int durationSeconds) {
+        userActivityRepository.findFirstByUserIdAndActivityTypeOrderByTimestampDesc(user.getId(), "BROWSE_PRODUCTS")
+                .ifPresent(activity -> updateBrowseDuration(user, activity, durationSeconds));
+    }
+
+    @Transactional
+    public void recordProductBrowseDuration(User user, Long activityId, int durationSeconds) {
+        if (activityId == null) {
+            recordLatestProductBrowseDuration(user, durationSeconds);
+            return;
+        }
+        userActivityRepository.findById(activityId)
+                .filter(activity -> belongsToUser(activity, user))
+                .filter(activity -> "BROWSE_PRODUCTS".equals(activity.getActivityType()))
+                .ifPresent(activity -> updateBrowseDuration(user, activity, durationSeconds));
     }
 
     public void recordProductPurchase(User user, Product product, Order order, Double amount) {
@@ -135,5 +154,28 @@ public class UserActivityService {
         String keyword = search == null || search.isBlank() ? "全部商品" : "搜索: " + search.trim();
         String categoryText = category == null || category.isBlank() ? "全部分类" : "分类: " + category.trim();
         return "浏览商品列表，" + keyword + "，" + categoryText;
+    }
+
+    private void updateBrowseDuration(User user, UserActivity activity, int durationSeconds) {
+        if (!belongsToUser(activity, user) || !"BROWSE_PRODUCTS".equals(activity.getActivityType())) {
+            return;
+        }
+        activity.setDurationSeconds(clampDuration(durationSeconds));
+        userActivityRepository.save(activity);
+    }
+
+    private boolean belongsToUser(UserActivity activity, User user) {
+        return activity.getUser() != null
+                && activity.getUser().getId() != null
+                && user != null
+                && user.getId() != null
+                && activity.getUser().getId().equals(user.getId());
+    }
+
+    private int clampDuration(int durationSeconds) {
+        if (durationSeconds < 1) {
+            return 1;
+        }
+        return Math.min(durationSeconds, 24 * 60 * 60);
     }
 }

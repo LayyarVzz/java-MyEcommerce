@@ -2,6 +2,7 @@ package com.example.myecommerce.controller;
 
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.User;
+import com.example.myecommerce.entity.UserActivity;
 import com.example.myecommerce.service.ProductService;
 import com.example.myecommerce.service.RecommendationService;
 import com.example.myecommerce.service.UserService;
@@ -60,7 +61,8 @@ public class ProductController {
         if (loggedIn) {
             currentUser = userService.getCurrentUser(username);
             balance = currentUser.getBalance();
-            userActivityService.recordProductBrowse(currentUser, normalizedSearch, normalizedCategory, RequestUtils.getClientIp(request));
+            UserActivity browseActivity = userActivityService.recordProductBrowse(currentUser, normalizedSearch, normalizedCategory, RequestUtils.getClientIp(request));
+            model.addAttribute("browseActivityId", browseActivity.getId());
         }
         model.addAttribute("recommendedProducts", recommendationService.recommendForContext(currentUser, normalizedSearch, normalizedCategory, 8));
         model.addAttribute("recommendationHint", getRecommendationHint(normalizedSearch, normalizedCategory));
