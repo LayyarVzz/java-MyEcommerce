@@ -126,6 +126,7 @@ java -jar target\MyEcommerce-1.0.0.jar
 - 本地：http://localhost:8080/products
 - 登录页：http://localhost:8080/login
 - 注册页：http://localhost:8080/register
+- 部署访问：http://134.175.18.182:8080/login
 
 ## Docker 运行
 
@@ -170,15 +171,16 @@ docker compose down
 
 ### 管理后台
 
-- `/admin/products`：商品管理，允许 `ADMIN`、`SALES`
-- `/admin/orders`：订单管理，允许 `ADMIN`、`SALES`
-- `/admin/reports`：销售报表，允许 `ADMIN`、`SALES`
+- `/admin/dashboard`：管理员控制台，仅允许 `ADMIN`
+- `/admin/products`：商品管理，仅允许 `ADMIN`
+- `/admin/orders`：订单管理，仅允许 `ADMIN`
+- `/admin/reports`：销售报表，仅允许 `ADMIN`
 - `/admin/customers`：客户管理，仅允许 `ADMIN`
 
-## 开发约定
+### 销售工作台
 
-- 优先使用 Thymeleaf 模板和 Bootstrap 5 组件保持页面风格一致。
-- 前端美化任务应主要修改 `src/main/resources/templates/` 和 `src/main/resources/static/`。
-- 修改涉及认证、角色权限、订单金额、库存扣减、客户余额等逻辑时，需要同步检查控制器、服务层和模板入口。
-- 不要将真实数据库密码、邮箱授权码或生产环境密钥提交到仓库。
+- `/sales/dashboard`：销售工作台，仅允许 `SALES`
+- `/sales/products`：商品维护，仅允许 `SALES`
+- `/sales/orders`：订单处理，仅允许 `SALES`
+- `/sales/activities`：用户浏览/购买日志，仅允许 `SALES`
 
