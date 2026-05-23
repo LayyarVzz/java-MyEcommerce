@@ -2,6 +2,7 @@ package com.example.myecommerce.controller;
 
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.User;
+import com.example.myecommerce.entity.UserActivity;
 import com.example.myecommerce.service.ProductService;
 import com.example.myecommerce.service.RecommendationService;
 import com.example.myecommerce.service.UserService;
@@ -10,6 +11,7 @@ import com.example.myecommerce.util.RequestUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,6 +48,7 @@ public class ProductController {
         boolean loggedIn = authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken);
+        boolean customer = loggedIn && hasRole(authentication, "ROLE_USER");
         String username = loggedIn ? authentication.getName() : "游客";
         String normalizedSearch = search == null || search.isBlank() ? null : search.trim();
         String normalizedCategory = category == null || category.isBlank() ? null : category.trim();
@@ -60,7 +63,10 @@ public class ProductController {
         if (loggedIn) {
             currentUser = userService.getCurrentUser(username);
             balance = currentUser.getBalance();
-            userActivityService.recordProductBrowse(currentUser, normalizedSearch, normalizedCategory, RequestUtils.getClientIp(request));
+        }
+        if (customer) {
+            UserActivity browseActivity = userActivityService.recordProductBrowse(currentUser, normalizedSearch, normalizedCategory, RequestUtils.getClientIp(request));
+            model.addAttribute("browseActivityId", browseActivity.getId());
         }
         model.addAttribute("recommendedProducts", recommendationService.recommendForContext(currentUser, normalizedSearch, normalizedCategory, 8));
         model.addAttribute("recommendationHint", getRecommendationHint(normalizedSearch, normalizedCategory));
@@ -68,6 +74,7 @@ public class ProductController {
         model.addAttribute("username", username);
         model.addAttribute("userBalance", balance);
         model.addAttribute("loggedIn", loggedIn);
+        model.addAttribute("trackBrowseDuration", customer);
         model.addAttribute("searchKeyword", normalizedSearch);
         model.addAttribute("selectedCategory", normalizedCategory);
         model.addAttribute("categories", productService.getAvailableCategories());
@@ -82,5 +89,11 @@ public class ProductController {
             return "与 \"" + search + "\" 相关的精选商品";
         }
         return "为你挑选的高关注商品，左右滑动查看更多";
+    }
+
+    private boolean hasRole(Authentication authentication, String role) {
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role::equals);
     }
 }

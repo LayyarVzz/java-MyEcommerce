@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/admin-shell :: head}"></th:block>
-    <title>商品管理 - 电商网站</title>
+    <th:block th:replace="~{fragments/sales-shell :: head}"></th:block>
+    <title>商品维护 - 销售工作台</title>
     <style>
         body {
             background: #f8f9fa;
@@ -11,7 +11,7 @@
     </style>
 </head>
 <body>
-<th:block th:replace="~{fragments/admin-shell :: navbar(activePage='admin-products')}"></th:block>
+<th:block th:replace="~{fragments/sales-shell :: navbar(activePage='sales-products')}"></th:block>
 
 <div class="container mt-4">
     <h2 th:text="${product.id != null ? '编辑商品' : '添加商品'}">商品表单</h2>
