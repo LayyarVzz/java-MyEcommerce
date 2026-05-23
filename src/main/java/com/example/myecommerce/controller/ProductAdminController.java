@@ -2,6 +2,7 @@ package com.example.myecommerce.controller;
 
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.User;
+import com.example.myecommerce.service.BackOfficeWorkspaceService;
 import com.example.myecommerce.service.ProductService;
 import com.example.myecommerce.service.UserActivityService;
 import com.example.myecommerce.service.UserService;
@@ -17,17 +18,22 @@ import java.util.List;
 
 // ProductAdminController.java
 @Controller
-@RequestMapping("/admin/products")
+@RequestMapping({"/admin/products", "/sales/products"})
 @PreAuthorize("hasAnyRole('ADMIN', 'SALES')")
 public class ProductAdminController {
     private final ProductService productService;
     private final UserService userService;
     private final UserActivityService userActivityService;
+    private final BackOfficeWorkspaceService workspaceService;
 
-    public ProductAdminController(ProductService productService, UserService userService, UserActivityService userActivityService) {
+    public ProductAdminController(ProductService productService,
+                                  UserService userService,
+                                  UserActivityService userActivityService,
+                                  BackOfficeWorkspaceService workspaceService) {
         this.productService = productService;
         this.userService = userService;
         this.userActivityService = userActivityService;
+        this.workspaceService = workspaceService;
     }
 
     // 显示商品管理页面
@@ -40,7 +46,8 @@ public class ProductAdminController {
         model.addAttribute("username", username);
         model.addAttribute("userBalance", user.getBalance());
         model.addAttribute("categories", productService.getAvailableCategories());
-        return "admin/product-list";
+        workspaceService.addWorkspaceAttributes(model, authentication);
+        return workspaceService.resolveView(authentication, "product-list");
     }
 
     // 显示添加商品表单
@@ -52,7 +59,8 @@ public class ProductAdminController {
         model.addAttribute("username", username);
         model.addAttribute("userBalance", user.getBalance());
         model.addAttribute("categories", productService.getAvailableCategories());
-        return "admin/product-form";
+        workspaceService.addWorkspaceAttributes(model, authentication);
+        return workspaceService.resolveView(authentication, "product-form");
     }
 
     // 处理添加商品请求
@@ -60,7 +68,7 @@ public class ProductAdminController {
     public String addProduct(@ModelAttribute Product product, Authentication authentication, HttpServletRequest request) {
         productService.saveProduct(product);
         recordOperation(authentication, "新增商品: " + product.getName(), request);
-        return "redirect:/admin/products";
+        return "redirect:" + workspaceService.productsPath(authentication);
     }
 
     // 显示编辑商品表单
@@ -73,7 +81,8 @@ public class ProductAdminController {
         model.addAttribute("username", username);
         model.addAttribute("userBalance", user.getBalance());
         model.addAttribute("categories", productService.getAvailableCategories());
-        return "admin/product-form";
+        workspaceService.addWorkspaceAttributes(model, authentication);
+        return workspaceService.resolveView(authentication, "product-form");
     }
 
     // 处理编辑商品请求
@@ -82,7 +91,7 @@ public class ProductAdminController {
         product.setId(id); // 确保ID不变
         productService.saveProduct(product);
         recordOperation(authentication, "编辑商品: " + product.getName(), request);
-        return "redirect:/admin/products";
+        return "redirect:" + workspaceService.productsPath(authentication);
     }
 
     // 下架商品
@@ -91,7 +100,7 @@ public class ProductAdminController {
         Product product = productService.getProductById(id);
         productService.discontinueProduct(id);
         recordOperation(authentication, "下架商品: " + product.getName(), request);
-        return "redirect:/admin/products";
+        return "redirect:" + workspaceService.productsPath(authentication);
     }
 
     private void recordOperation(Authentication authentication, String description, HttpServletRequest request) {

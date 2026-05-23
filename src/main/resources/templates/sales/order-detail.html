@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/admin-shell :: head}"></th:block>
+    <th:block th:replace="~{fragments/sales-shell :: head}"></th:block>
     <title>订单详情 - MyEcommerce</title>
     <style>
         body {
@@ -12,13 +12,13 @@
 </head>
 <body>
 
-<th:block th:replace="~{fragments/admin-shell :: navbar(activePage='admin-orders')}"></th:block>
+<th:block th:replace="~{fragments/sales-shell :: navbar(activePage='sales-orders')}"></th:block>
 
 <div class="container mt-4">
     <h2>订单详情</h2>
     
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="${ordersPath}">订单管理</a></li>
+        <li class="breadcrumb-item"><a th:href="${ordersPath}">订单处理</a></li>
         <li class="breadcrumb-item active" th:text="${order.id}"></li>
     </ol>
     
@@ -37,7 +37,7 @@
                         <tr>
                             <th>用户:</th>
                             <td>
-                                <a th:href="@{/admin/customers/{id}(id=${order.user.id})}" th:text="${order.user.username}"></a>
+                                <span th:text="${order.user.username}"></span>
                             </td>
                         </tr>
                         <tr>

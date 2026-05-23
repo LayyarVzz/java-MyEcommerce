@@ -2,6 +2,7 @@ package com.example.myecommerce.config;
 
 import com.example.myecommerce.service.UserService;
 import com.example.myecommerce.service.UserActivityService;
+import com.example.myecommerce.service.RoleHomeResolver;
 import com.example.myecommerce.util.RequestUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +20,15 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final UserService userService;
     private final UserActivityService userActivityService;
+    private final RoleHomeResolver roleHomeResolver;
 
     // 构造器注入 UserService
-    public SecurityConfig(UserService userService, UserActivityService userActivityService) {
+    public SecurityConfig(UserService userService,
+                          UserActivityService userActivityService,
+                          RoleHomeResolver roleHomeResolver) {
         this.userService = userService;
         this.userActivityService = userActivityService;
+        this.roleHomeResolver = roleHomeResolver;
     }
 
 
@@ -36,8 +41,10 @@ public class SecurityConfig implements WebMvcConfigurer {
                 // 配置请求权限
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/products", "/register", "/login", "/css/**", "/js/**", "/upload/**").permitAll()
+                        .requestMatchers("/admin/dashboard").hasRole("ADMIN")
                         .requestMatchers("/admin/customers/**").hasRole("ADMIN")
-                        .requestMatchers("/admin/products/**", "/admin/orders/**", "/admin/reports/**").hasAnyRole("ADMIN", "SALES")
+                        .requestMatchers("/admin/products/**", "/admin/orders/**", "/admin/reports/**", "/admin/activities/**").hasRole("ADMIN")
+                        .requestMatchers("/sales/**").hasRole("SALES")
                         .requestMatchers("/orders/**").authenticated()
                         .requestMatchers("/addresses/**").authenticated()
                         .requestMatchers("/cart/**").authenticated()
@@ -48,7 +55,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .loginPage("/login") // 自定义登录页路径
                         .successHandler((request, response, authentication) -> {
                             userActivityService.recordLogin(authentication.getName(), RequestUtils.getClientIp(request));
-                            response.sendRedirect("/products");
+                            response.sendRedirect(roleHomeResolver.resolveHomeUrl(authentication));
                         })
                         .permitAll()
                 )

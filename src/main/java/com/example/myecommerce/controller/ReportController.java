@@ -1,6 +1,7 @@
 package com.example.myecommerce.controller;
 
 import com.example.myecommerce.entity.User;
+import com.example.myecommerce.service.BackOfficeWorkspaceService;
 import com.example.myecommerce.service.ReportService;
 import com.example.myecommerce.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,16 +17,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/admin/reports")
+@RequestMapping({"/admin/reports", "/sales/reports"})
 @PreAuthorize("hasAnyRole('ADMIN', 'SALES')")
 public class ReportController {
 
     private final ReportService reportService;
     private final UserService userService;
+    private final BackOfficeWorkspaceService workspaceService;
 
-    public ReportController(ReportService reportService, UserService userService) {
+    public ReportController(ReportService reportService,
+                            UserService userService,
+                            BackOfficeWorkspaceService workspaceService) {
         this.reportService = reportService;
         this.userService = userService;
+        this.workspaceService = workspaceService;
     }
 
     @GetMapping
@@ -52,7 +57,8 @@ public class ReportController {
         model.addAttribute("reportData", reportData);
         model.addAttribute("startDate", start);
         model.addAttribute("endDate", end);
+        workspaceService.addWorkspaceAttributes(model, authentication);
 
-        return "admin/sales-report";
+        return workspaceService.resolveView(authentication, "sales-report");
     }
 }

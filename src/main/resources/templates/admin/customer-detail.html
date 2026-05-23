@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/navbar :: head}"></th:block>
+    <th:block th:replace="~{fragments/admin-shell :: head}"></th:block>
     <title>客户详情 - 电商网站</title>
     <style>
         body {
@@ -81,7 +81,7 @@
 </head>
 <body>
 
-<th:block th:replace="~{fragments/navbar :: navbar(activePage='admin-customers')}"></th:block>
+<th:block th:replace="~{fragments/admin-shell :: navbar(activePage='admin-customers')}"></th:block>
 
 <!-- 页面头部 -->
 <div class="page-header">

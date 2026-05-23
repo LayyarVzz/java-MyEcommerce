@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/admin-shell :: head}"></th:block>
-    <title>销售报表 - 电商网站</title>
+    <th:block th:replace="~{fragments/sales-shell :: head}"></th:block>
+    <title>销售数据 - 销售工作台</title>
     <style>
         body {
             background: #f8f9fa;
@@ -63,7 +63,7 @@
     </style>
 </head>
 <body>
-<th:block th:replace="~{fragments/admin-shell :: navbar(activePage='admin-reports')}"></th:block>
+<th:block th:replace="~{fragments/sales-shell :: navbar(activePage='sales-reports')}"></th:block>
 
 <div class="container mt-4">
     <h2>销售报表</h2>

@@ -64,29 +64,14 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''SALES'')')}">
-                        <a class="nav-link" th:classappend="${activePage == 'admin-products' ? 'active' : ''}" href="/admin/products">
-                            <i class="bi bi-box-seam me-1"></i>商品管理
-                        </a>
-                    </li>
-                    <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''SALES'')')}">
-                        <a class="nav-link" th:classappend="${activePage == 'admin-orders' ? 'active' : ''}" href="/admin/orders">
-                            <i class="bi bi-list-ul me-1"></i>订单管理
-                        </a>
-                    </li>
                     <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
-                        <a class="nav-link" th:classappend="${activePage == 'admin-customers' ? 'active' : ''}" href="/admin/customers">
-                            <i class="bi bi-people me-1"></i>客户管理
+                        <a class="nav-link" href="/admin/dashboard">
+                            <i class="bi bi-shield-lock me-1"></i>管理员控制台
                         </a>
                     </li>
-                    <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''SALES'')')}">
-                        <a class="nav-link" th:classappend="${activePage == 'admin-reports' ? 'active' : ''}" href="/admin/reports">
-                            <i class="bi bi-graph-up me-1"></i>销售报表
-                        </a>
-                    </li>
-                    <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''SALES'')')}">
-                        <a class="nav-link" th:classappend="${activePage == 'admin-activities' ? 'active' : ''}" href="/admin/activities">
-                            <i class="bi bi-clock-history me-1"></i>数据日志
+                    <li class="nav-item" th:if="${#authorization.expression('hasRole(''SALES'')')}">
+                        <a class="nav-link" href="/sales/dashboard">
+                            <i class="bi bi-headset me-1"></i>销售工作台
                         </a>
                     </li>
                 </ul>
@@ -96,17 +81,17 @@
                             <i class="bi bi-grid me-1"></i>商品列表
                         </a>
                     </li>
-                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <li class="nav-item" th:if="${#authorization.expression('hasRole(''USER'')')}">
                         <a class="nav-link" th:classappend="${activePage == 'cart' ? 'active' : ''}" href="/cart">
                             <i class="bi bi-cart3 me-1"></i>购物车
                         </a>
                     </li>
-                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <li class="nav-item" th:if="${#authorization.expression('hasRole(''USER'')')}">
                         <a class="nav-link" th:classappend="${activePage == 'orders' ? 'active' : ''}" href="/orders">
                             <i class="bi bi-receipt me-1"></i>订单
                         </a>
                     </li>
-                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <li class="nav-item" th:if="${#authorization.expression('hasRole(''USER'')')}">
                         <a class="nav-link" th:classappend="${activePage == 'addresses' ? 'active' : ''}" href="/addresses">
                             <i class="bi bi-geo-alt me-1"></i>地址
                         </a>
@@ -116,7 +101,7 @@
                     <div class="user-info">
                         <i class="bi bi-person-circle"></i>
                         <span class="text-light">[[${username}]]</span>
-                        <span class="text-light">余额：<span class="user-balance" th:text="'¥' + ${userBalance}">¥0.00</span></span>
+                        <span class="text-light" th:if="${#authorization.expression('hasRole(''USER'')')}">余额：<span class="user-balance" th:text="'¥' + ${userBalance}">¥0.00</span></span>
                         <a href="/logout" class="text-light text-decoration-none">
                             <i class="bi bi-box-arrow-right"></i>
                         </a>
