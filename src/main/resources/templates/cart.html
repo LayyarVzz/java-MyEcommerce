@@ -142,6 +142,7 @@
                 <tbody>
                 <tr th:each="item, iterStat : ${cartItems}">
                     <td><img th:src="${item.product.imageUrl ?: '/upload/default.png'}" class="product-image"
+                             onerror="this.onerror=null;this.src='/upload/default.png';"
                              th:alt="${item.product.name}"></td>
                     <td>
                         <strong th:text="${item.product.name}">商品名称</strong>

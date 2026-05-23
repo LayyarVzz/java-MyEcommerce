@@ -3,7 +3,11 @@ package com.example.myecommerce.controller;
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.service.ProductService;
+import com.example.myecommerce.service.UserActivityService;
 import com.example.myecommerce.service.UserService;
+import com.example.myecommerce.util.RequestUtils;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,13 +18,16 @@ import java.util.List;
 // ProductAdminController.java
 @Controller
 @RequestMapping("/admin/products")
+@PreAuthorize("hasAnyRole('ADMIN', 'SALES')")
 public class ProductAdminController {
     private final ProductService productService;
     private final UserService userService;
+    private final UserActivityService userActivityService;
 
-    public ProductAdminController(ProductService productService, UserService userService) {
+    public ProductAdminController(ProductService productService, UserService userService, UserActivityService userActivityService) {
         this.productService = productService;
         this.userService = userService;
+        this.userActivityService = userActivityService;
     }
 
     // 显示商品管理页面
@@ -32,6 +39,7 @@ public class ProductAdminController {
         model.addAttribute("products", products);
         model.addAttribute("username", username);
         model.addAttribute("userBalance", user.getBalance());
+        model.addAttribute("categories", productService.getAvailableCategories());
         return "admin/product-list";
     }
 
@@ -43,13 +51,15 @@ public class ProductAdminController {
         model.addAttribute("product", new Product());
         model.addAttribute("username", username);
         model.addAttribute("userBalance", user.getBalance());
+        model.addAttribute("categories", productService.getAvailableCategories());
         return "admin/product-form";
     }
 
     // 处理添加商品请求
     @PostMapping("/add")
-    public String addProduct(@ModelAttribute Product product) {
+    public String addProduct(@ModelAttribute Product product, Authentication authentication, HttpServletRequest request) {
         productService.saveProduct(product);
+        recordOperation(authentication, "新增商品: " + product.getName(), request);
         return "redirect:/admin/products";
     }
 
@@ -62,22 +72,31 @@ public class ProductAdminController {
         model.addAttribute("product", product);
         model.addAttribute("username", username);
         model.addAttribute("userBalance", user.getBalance());
+        model.addAttribute("categories", productService.getAvailableCategories());
         return "admin/product-form";
     }
 
     // 处理编辑商品请求
     @PostMapping("/edit/{id}")
-    public String editProduct(@PathVariable Long id, @ModelAttribute Product product) {
+    public String editProduct(@PathVariable Long id, @ModelAttribute Product product, Authentication authentication, HttpServletRequest request) {
         product.setId(id); // 确保ID不变
         productService.saveProduct(product);
+        recordOperation(authentication, "编辑商品: " + product.getName(), request);
         return "redirect:/admin/products";
     }
 
     // 下架商品
     @PostMapping("/{id}")
-    public String discontinueProduct(@PathVariable Long id) {
+    public String discontinueProduct(@PathVariable Long id, Authentication authentication, HttpServletRequest request) {
+        Product product = productService.getProductById(id);
         productService.discontinueProduct(id);
+        recordOperation(authentication, "下架商品: " + product.getName(), request);
         return "redirect:/admin/products";
+    }
+
+    private void recordOperation(Authentication authentication, String description, HttpServletRequest request) {
+        User user = userService.getCurrentUser(authentication.getName());
+        userActivityService.recordAdminOperation(user, description, RequestUtils.getClientIp(request));
     }
 }
 

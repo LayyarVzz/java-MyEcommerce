@@ -38,6 +38,10 @@ public class CartService {
 
     // 加入购物车
     public void addToCart(String username, Long productId, int quantity) {
+        addToCart(username, productId, quantity, null);
+    }
+
+    public void addToCart(String username, Long productId, int quantity, String ipAddress) {
         User user = userService.getCurrentUser(username);
         Product product = productService.getProductById(productId);
 
@@ -62,7 +66,7 @@ public class CartService {
         }
 
         // 记录用户活动
-        userActivityService.recordAddToCart(user, product);
+        userActivityService.recordAddToCart(user, product, quantity, ipAddress);
     }
 
     // 获取用户购物车
@@ -112,6 +116,10 @@ public class CartService {
     }
 
     public Order createOrderFromCart(String username, Long addressId) {
+        return createOrderFromCart(username, addressId, null);
+    }
+
+    public Order createOrderFromCart(String username, Long addressId, String ipAddress) {
         User user = userService.getCurrentUser(username);
         List<CartItem> cartItems = cartItemRepository.findByUser(user);
         if (cartItems.isEmpty()) {
@@ -170,7 +178,9 @@ public class CartService {
                     user,
                     cartItem.getProduct(),
                     order,
-                    cartItem.getProduct().getPrice().doubleValue() * cartItem.getQuantity()
+                    cartItem.getProduct().getPrice().doubleValue() * cartItem.getQuantity(),
+                    cartItem.getQuantity(),
+                    ipAddress
             );
         }
         return order;

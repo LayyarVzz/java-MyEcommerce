@@ -64,12 +64,12 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''SALES'')')}">
                         <a class="nav-link" th:classappend="${activePage == 'admin-products' ? 'active' : ''}" href="/admin/products">
                             <i class="bi bi-box-seam me-1"></i>商品管理
                         </a>
                     </li>
-                    <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''SALES'')')}">
                         <a class="nav-link" th:classappend="${activePage == 'admin-orders' ? 'active' : ''}" href="/admin/orders">
                             <i class="bi bi-list-ul me-1"></i>订单管理
                         </a>
@@ -79,9 +79,14 @@
                             <i class="bi bi-people me-1"></i>客户管理
                         </a>
                     </li>
-                    <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''SALES'')')}">
                         <a class="nav-link" th:classappend="${activePage == 'admin-reports' ? 'active' : ''}" href="/admin/reports">
                             <i class="bi bi-graph-up me-1"></i>销售报表
+                        </a>
+                    </li>
+                    <li class="nav-item" th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''SALES'')')}">
+                        <a class="nav-link" th:classappend="${activePage == 'admin-activities' ? 'active' : ''}" href="/admin/activities">
+                            <i class="bi bi-clock-history me-1"></i>数据日志
                         </a>
                     </li>
                 </ul>
@@ -91,23 +96,23 @@
                             <i class="bi bi-grid me-1"></i>商品列表
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                         <a class="nav-link" th:classappend="${activePage == 'cart' ? 'active' : ''}" href="/cart">
                             <i class="bi bi-cart3 me-1"></i>购物车
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                         <a class="nav-link" th:classappend="${activePage == 'orders' ? 'active' : ''}" href="/orders">
                             <i class="bi bi-receipt me-1"></i>订单
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" th:if="${#authorization.expression('isAuthenticated()')}">
                         <a class="nav-link" th:classappend="${activePage == 'addresses' ? 'active' : ''}" href="/addresses">
                             <i class="bi bi-geo-alt me-1"></i>地址
                         </a>
                     </li>
                 </ul>
-                <div class="navbar-nav ms-3">
+                <div class="navbar-nav ms-3" th:if="${#authorization.expression('isAuthenticated()')}">
                     <div class="user-info">
                         <i class="bi bi-person-circle"></i>
                         <span class="text-light">[[${username}]]</span>
@@ -116,6 +121,10 @@
                             <i class="bi bi-box-arrow-right"></i>
                         </a>
                     </div>
+                </div>
+                <div class="navbar-nav ms-3" th:unless="${#authorization.expression('isAuthenticated()')}">
+                    <a class="nav-link text-light" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>登录</a>
+                    <a class="nav-link text-light" href="/register"><i class="bi bi-person-plus me-1"></i>注册</a>
                 </div>
             </div>
         </div>

@@ -32,6 +32,14 @@
         </div>
 
         <div class="mb-3">
+            <label for="category" class="form-label">商品分类</label>
+            <input type="text" class="form-control" id="category" th:field="*{category}" list="categoryOptions" placeholder="例如：数码、服饰、食品">
+            <datalist id="categoryOptions">
+                <option th:each="category : ${categories}" th:value="${category}"></option>
+            </datalist>
+        </div>
+
+        <div class="mb-3">
             <label for="stock" class="form-label">库存</label>
             <input type="number" class="form-control" id="stock" th:field="*{stock}" min="0" required>
         </div>

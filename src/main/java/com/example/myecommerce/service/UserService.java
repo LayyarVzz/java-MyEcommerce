@@ -56,6 +56,27 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
+    public void createSalesUser(String username, String rawPassword, String email, String fullName) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(rawPassword);
+        user.setEmail(email);
+        user.setFullName(fullName);
+        user.setRole("SALES");
+        saveUser(user);
+    }
+
+    public void resetPassword(Long userId, String rawPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("用户不存在"));
+        user.setPassword(passwordEncoder.encode(rawPassword));
+        userRepository.save(user);
+    }
+
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
+
     // 保存用户（不加密密码）
     public void saveUserWithoutEncryption(User user) {
         System.out.println("Saving user without encryption: " + user.getUsername() + ", balance: " + user.getBalance());

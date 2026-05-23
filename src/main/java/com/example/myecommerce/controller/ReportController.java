@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/admin/reports")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'SALES')")
 public class ReportController {
 
     private final ReportService reportService;

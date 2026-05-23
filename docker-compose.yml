@@ -9,9 +9,6 @@ services:
       MYSQL_ROOT_PASSWORD: mysql
       # 自动创建数据库
       MYSQL_DATABASE: ecommerce_db
-      # 字符集配置
-      MYSQL_CHARACTER_SET_SERVER: utf8mb4
-      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
     ports:
       - "3306:3306"
     volumes:
@@ -27,6 +24,8 @@ services:
     restart: always
     ports:
       - "8080:8080"
+    volumes:
+      - app-upload:/app/upload
     # 依赖 MySQL 服务，确保先启动 MySQL
     depends_on:
       - mysql
@@ -41,3 +40,4 @@ networks:
 # 数据卷（持久化 MySQL 数据）
 volumes:
   mysql-data:
+  app-upload:

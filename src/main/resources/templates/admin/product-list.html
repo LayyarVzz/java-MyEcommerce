@@ -105,6 +105,7 @@
             <tr>
                 <th><i class="bi bi-hash me-1"></i>ID</th>
                 <th><i class="bi bi-box me-1"></i>名称</th>
+                <th><i class="bi bi-tags me-1"></i>分类</th>
                 <th><i class="bi bi-currency-yen me-1"></i>价格</th>
                 <th><i class="bi bi-stack me-1"></i>库存</th>
                 <th><i class="bi bi-info-circle me-1"></i>状态</th>
@@ -119,10 +120,12 @@
                         <img th:src="${product.imageUrl ?: '/upload/default.png'}"
                              th:alt="${product.name}"
                              style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;"
+                             onerror="this.onerror=null;this.src='/upload/default.png';"
                              class="me-2">
                         <span th:text="${product.name}"></span>
                     </div>
                 </td>
+                <td><span class="badge bg-light text-dark border" th:text="${product.category}">未分类</span></td>
                 <td th:text="'¥' + ${product.price}"></td>
                 <td>
                     <span th:text="${product.stock}"></span>

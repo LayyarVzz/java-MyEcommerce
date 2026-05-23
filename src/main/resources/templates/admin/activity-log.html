@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/navbar :: head}"></th:block>
+    <title>数据日志 - 电商网站</title>
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .page-header {
+            background: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table thead th {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #f0f0f0;
+        }
+        .badge {
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .log-description {
+            min-width: 220px;
+        }
+        .log-meta {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+<th:block th:replace="~{fragments/navbar :: navbar(activePage='admin-activities')}"></th:block>
+
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-clock-history fs-1 text-gradient"></i>
+            <div>
+                <h1 class="mb-0">数据日志</h1>
+                <p class="text-muted mb-0">集中查看登录、浏览、加购、购买和后台操作采集记录</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 mb-0"><i class="bi bi-database-check me-2"></i>采集记录</h2>
+                <span class="text-muted small" th:text="${#lists.size(activities)} + ' 条记录'">0 条记录</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>账号</th>
+                        <th>类型</th>
+                        <th>内容</th>
+                        <th>商品/分类</th>
+                        <th>价格/数量</th>
+                        <th>停留</th>
+                        <th>IP</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="activity : ${activities}">
+                        <td th:text="${#temporals.format(activity.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-01-01 12:00:00</td>
+                        <td>
+                            <strong th:text="${activity.user != null ? activity.user.username : '-'}">user</strong>
+                            <div class="log-meta" th:text="${activity.user != null ? activity.user.role : ''}">USER</div>
+                        </td>
+                        <td>
+                            <span th:if="${activity.activityType == 'LOGIN'}" class="badge bg-secondary">登录</span>
+                            <span th:if="${activity.activityType == 'BROWSE_PRODUCTS'}" class="badge bg-info">浏览列表</span>
+                            <span th:if="${activity.activityType == 'VIEW_PRODUCT'}" class="badge bg-info">浏览商品</span>
+                            <span th:if="${activity.activityType == 'ADD_TO_CART'}" class="badge bg-warning">加入购物车</span>
+                            <span th:if="${activity.activityType == 'PURCHASE_PRODUCT'}" class="badge bg-success">购买商品</span>
+                            <span th:if="${activity.activityType == 'ADMIN_OPERATION'}" class="badge bg-primary">后台操作</span>
+                        </td>
+                        <td class="log-description" th:text="${activity.description}">日志内容</td>
+                        <td>
+                            <span th:if="${activity.productName}" th:text="${activity.productName}">商品</span>
+                            <span th:unless="${activity.productName}" th:text="${activity.productCategory ?: '-'}">分类</span>
+                            <div class="log-meta" th:if="${activity.productCategory}" th:text="${activity.productCategory}">分类</div>
+                        </td>
+                        <td>
+                            <span th:if="${activity.unitPrice}" th:text="'¥' + ${activity.unitPrice}">¥0.00</span>
+                            <span th:if="${activity.quantity}" th:text="' × ' + ${activity.quantity}"> × 1</span>
+                            <span th:if="${activity.amount}" class="d-block log-meta" th:text="'金额 ¥' + ${#numbers.formatDecimal(activity.amount, 1, 2)}">金额</span>
+                            <span th:unless="${activity.unitPrice != null or activity.quantity != null or activity.amount != null}">-</span>
+                        </td>
+                        <td>
+                            <span th:if="${activity.durationSeconds != null}" th:text="${activity.durationSeconds} + ' 秒'">0 秒</span>
+                            <span th:unless="${activity.durationSeconds != null}">-</span>
+                        </td>
+                        <td th:text="${activity.ipAddress ?: '-'}">127.0.0.1</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(activities)}">
+                        <td colspan="8" class="text-center text-muted py-5">
+                            <i class="bi bi-inbox fs-1"></i>
+                            <p class="mt-2 mb-0">暂无数据日志</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

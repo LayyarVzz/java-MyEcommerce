@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "products")
 public class Product {
+    public static final String DEFAULT_CATEGORY = "综合商品";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,6 +23,8 @@ public class Product {
 
     @Column(nullable = false)
     private BigDecimal price; // 商品价格
+
+    private String category = DEFAULT_CATEGORY; // 商品分类
 
     private String imageUrl; // 商品图片（用占位图）
     
@@ -40,6 +44,9 @@ public class Product {
     
     @PostLoad
     public void onLoad() {
+        if (this.category == null || this.category.isBlank() || "未分类".equals(this.category.trim())) {
+            this.category = DEFAULT_CATEGORY;
+        }
         // 确保从数据库加载时，discontinued不会为null
         if (this.discontinued == null) {
             this.discontinued = false;

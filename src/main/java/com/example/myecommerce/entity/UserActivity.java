@@ -2,6 +2,8 @@ package com.example.myecommerce.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -31,6 +33,21 @@ public class UserActivity {
 
     @Column(name = "product_name")
     private String productName;
+
+    @Column(name = "product_category")
+    private String productCategory;
+
+    @Column(name = "ip_address")
+    private String ipAddress;
+
+    @Column(name = "duration_seconds")
+    private Integer durationSeconds;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "unit_price")
+    private BigDecimal unitPrice;
 
     // 订单相关信息（如果是购买）
     @Column(name = "order_id")

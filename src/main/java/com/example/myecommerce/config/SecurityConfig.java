@@ -1,9 +1,12 @@
 package com.example.myecommerce.config;
 
 import com.example.myecommerce.service.UserService;
+import com.example.myecommerce.service.UserActivityService;
+import com.example.myecommerce.util.RequestUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -11,13 +14,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig implements WebMvcConfigurer {
 
     private final UserService userService;
+    private final UserActivityService userActivityService;
 
     // 构造器注入 UserService
-    public SecurityConfig(UserService userService) {
+    public SecurityConfig(UserService userService, UserActivityService userActivityService) {
         this.userService = userService;
+        this.userActivityService = userActivityService;
     }
 
 
@@ -29,16 +35,21 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .csrf(AbstractHttpConfigurer::disable)
                 // 配置请求权限
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/register", "/login", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // 管理员权限
+                        .requestMatchers("/", "/products", "/register", "/login", "/css/**", "/js/**", "/upload/**").permitAll()
+                        .requestMatchers("/admin/customers/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/products/**", "/admin/orders/**", "/admin/reports/**").hasAnyRole("ADMIN", "SALES")
                         .requestMatchers("/orders/**").authenticated()
                         .requestMatchers("/addresses/**").authenticated()
+                        .requestMatchers("/cart/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 // 配置登录页面
                 .formLogin(form -> form
                         .loginPage("/login") // 自定义登录页路径
-                        .defaultSuccessUrl("/products", true) // 登录成功后跳转到商品列表
+                        .successHandler((request, response, authentication) -> {
+                            userActivityService.recordLogin(authentication.getName(), RequestUtils.getClientIp(request));
+                            response.sendRedirect("/products");
+                        })
                         .permitAll()
                 )
                 // 配置退出登录

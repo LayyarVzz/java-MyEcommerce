@@ -7,7 +7,10 @@ import com.example.myecommerce.service.AddressService;
 import com.example.myecommerce.service.CartService;
 import com.example.myecommerce.service.MailService;
 import com.example.myecommerce.service.UserService;
+import com.example.myecommerce.util.RequestUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/cart")
@@ -38,10 +42,39 @@ public class CartController {
     public String addToCart(
             @RequestParam Long productId,
             @RequestParam(defaultValue = "1") Integer quantity,
-            Authentication authentication) {
+            Authentication authentication,
+            HttpServletRequest request) {
         String username = authentication.getName();
-        cartService.addToCart(username, productId, quantity);
+        cartService.addToCart(username, productId, quantity, RequestUtils.getClientIp(request));
         return "redirect:/products"; // 跳转回商品列表页
+    }
+
+    @PostMapping("/add-ajax")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> addToCartAjax(
+            @RequestParam Long productId,
+            @RequestParam(defaultValue = "1") Integer quantity,
+            Authentication authentication,
+            HttpServletRequest request) {
+        try {
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return ResponseEntity.status(401).body(Map.of(
+                        "success", false,
+                        "message", "请先登录后再加入购物车"
+                ));
+            }
+            String username = authentication.getName();
+            cartService.addToCart(username, productId, quantity, RequestUtils.getClientIp(request));
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "message", "已加入购物车"
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
     }
 
     // 查看购物车
@@ -89,7 +122,8 @@ public class CartController {
     @PostMapping("/checkout")
     public String checkout(@RequestParam(required = false) Long addressId,
                            Authentication authentication,
-                           RedirectAttributes redirectAttributes) {
+                           RedirectAttributes redirectAttributes,
+                           HttpServletRequest request) {
         String username = authentication.getName();
 
         try {
@@ -100,7 +134,7 @@ public class CartController {
             }
 
             // 创建订单逻辑
-            Order order = cartService.createOrderFromCart(username, addressId);
+            Order order = cartService.createOrderFromCart(username, addressId, RequestUtils.getClientIp(request));
 
             // 发送订单确认邮件
             User user = userService.getCurrentUser(username);

@@ -56,6 +56,12 @@
             background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
             color: #155724;
         }
+        .order-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+        }
         .badge {
             border-radius: 20px;
             padding: 6px 12px;
@@ -104,6 +110,15 @@
         <p><strong>联系电话：</strong><span th:text="${order.contactPhone}"></span></p>
         <p><strong>收货地址：</strong><span th:text="${order.deliveryAddress}"></span></p>
         <p>我们会尽快为您发货，请保持电话畅通。</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i><span th:text="${success}">操作成功</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}">操作失败</span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
@@ -178,10 +193,18 @@
             </div>
         </div>
 
-        <div class="mt-4 text-center">
+        <div class="mt-4 order-actions">
             <a href="/orders" class="btn btn-secondary">
                 <i class="bi bi-arrow-left me-2"></i>返回订单列表
             </a>
+            <form th:if="${order.status == '待处理'}"
+                  th:action="@{/orders/{id}/cancel(id=${order.id})}"
+                  method="post"
+                  onsubmit="return confirm('确认取消该订单吗？订单金额将退回余额。')">
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-x-circle me-2"></i>取消订单
+                </button>
+            </form>
         </div>
     </div>
     <div th:unless="${order}" class="alert alert-warning">

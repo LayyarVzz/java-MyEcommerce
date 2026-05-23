@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class ProductService {
@@ -51,7 +54,17 @@ public class ProductService {
             // 手动过滤discontinued为false或null的商品
             products.removeIf(product -> Boolean.TRUE.equals(product.getDiscontinued()));
         }
-        return products;
+        return sortProducts(products);
+    }
+
+    public List<String> getAvailableCategories() {
+        return getAvailableProducts().stream()
+                .map(Product::getCategory)
+                .map(this::normalizeCategory)
+                .filter(category -> !"未分类".equals(category))
+                .distinct()
+                .sorted(Comparator.naturalOrder())
+                .toList();
     }
 
     // 根据ID查询商品
@@ -61,14 +74,21 @@ public class ProductService {
 
     // 根据keyword搜索商品
     public List<Product> searchProducts(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return getAvailableProducts();
-        }
-        return productRepository.findByNameContainingIgnoreCaseAndDiscontinuedFalse(keyword);
+        return searchProducts(keyword, null);
+    }
+
+    public List<Product> searchProducts(String keyword, String category) {
+        return filterAndSortProducts(getAvailableProducts(), keyword, category);
+    }
+
+    public List<Product> searchProducts(String keyword, String category, boolean includeDiscontinued) {
+        List<Product> products = includeDiscontinued ? sortProducts(getAllProducts()) : getAvailableProducts();
+        return filterAndSortProducts(products, keyword, category);
     }
 
     // 保存商品
     public void saveProduct(Product product) {
+        product.setCategory(normalizeCategory(product.getCategory()));
         // 确保 discontinued 字段不为 null
         if (product.getDiscontinued() == null) {
             product.setDiscontinued(false);
@@ -140,5 +160,91 @@ public class ProductService {
         user.setBalance(user.getBalance().add(totalAmount));
         userRepository.save(user);
         System.out.println("Refunded " + totalAmount + " to user " + user.getUsername());
+    }
+
+    private String normalizeCategory(String category) {
+        if (category == null || category.isBlank() || "未分类".equals(category.trim())) {
+            return Product.DEFAULT_CATEGORY;
+        }
+        return category.trim();
+    }
+
+    private List<Product> filterAndSortProducts(List<Product> products, String keyword, String category) {
+        String normalizedKeyword = normalizeText(keyword);
+        String normalizedCategory = normalizeCategory(category);
+        boolean hasKeyword = !normalizedKeyword.isEmpty();
+        boolean hasCategory = category != null && !category.isBlank();
+
+        Comparator<Product> comparator = Comparator.comparing(
+                Product::getId,
+                Comparator.nullsLast(Long::compareTo)
+        );
+        if (hasKeyword) {
+            comparator = Comparator.comparingInt((Product product) -> searchScore(product, normalizedKeyword))
+                    .reversed()
+                    .thenComparing(comparator);
+        }
+
+        return products.stream()
+                .filter(product -> !hasKeyword || searchScore(product, normalizedKeyword) > 0)
+                .filter(product -> !hasCategory || Objects.equals(normalizeCategory(product.getCategory()), normalizedCategory))
+                .sorted(comparator)
+                .toList();
+    }
+
+    private int searchScore(Product product, String normalizedKeyword) {
+        if (normalizedKeyword.isEmpty()) {
+            return 1;
+        }
+
+        int score = 0;
+        String name = normalizeText(product.getName());
+        String description = normalizeText(product.getDescription());
+        String category = normalizeText(normalizeCategory(product.getCategory()));
+
+        if (name.equals(normalizedKeyword)) {
+            score += 120;
+        } else if (name.startsWith(normalizedKeyword)) {
+            score += 100;
+        } else if (name.contains(normalizedKeyword)) {
+            score += 80;
+        }
+
+        if (category.equals(normalizedKeyword)) {
+            score += 70;
+        } else if (category.contains(normalizedKeyword)) {
+            score += 45;
+        }
+
+        if (description.contains(normalizedKeyword)) {
+            score += 30;
+        }
+
+        for (String token : normalizedKeyword.split("\\s+")) {
+            if (token.isBlank() || token.equals(normalizedKeyword)) {
+                continue;
+            }
+            if (name.contains(token)) {
+                score += 30;
+            }
+            if (category.contains(token)) {
+                score += 15;
+            }
+            if (description.contains(token)) {
+                score += 10;
+            }
+        }
+
+        return score;
+    }
+
+    private String normalizeText(String value) {
+        return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private List<Product> sortProducts(List<Product> products) {
+        return products.stream()
+                .sorted(Comparator.comparing(Product::getId, Comparator.nullsLast(Long::compareTo)))
+                .toList();
     }
 }

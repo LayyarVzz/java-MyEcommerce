@@ -128,13 +128,56 @@
                         </tr>
                         <tr>
                             <th><i class="bi bi-shield me-1"></i>角色:</th>
-                            <td><span class="badge" th:classappend="${customer.role == 'ADMIN'} ? 'bg-danger' : 'bg-success'" th:text="${customer.role}"></span></td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${customer.role == 'ADMIN'} ? 'bg-danger' : (${customer.role == 'SALES'} ? 'bg-primary' : 'bg-success')"
+                                      th:text="${customer.role}"></span>
+                            </td>
                         </tr>
                         <tr>
                             <th><i class="bi bi-currency-dollar me-1"></i>余额:</th>
                             <td th:text="'¥' + ${customer.balance}"></td>
                         </tr>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4" th:if="${profile != null}">
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-tags fs-2 text-primary"></i>
+                    <h6 class="mt-2">偏好分类</h6>
+                    <strong th:text="${profile.favoriteCategory}">暂无偏好</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-wallet2 fs-2 text-success"></i>
+                    <h6 class="mt-2">购买力</h6>
+                    <strong th:text="${profile.buyingPower}">暂无购买记录</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-activity fs-2 text-warning"></i>
+                    <h6 class="mt-2">活跃度</h6>
+                    <strong th:text="${profile.activityLevel}">低活跃</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-geo-alt fs-2 text-info"></i>
+                    <h6 class="mt-2">地域判断</h6>
+                    <strong th:text="${profile.region}">未知地域</strong>
                 </div>
             </div>
         </div>
@@ -158,6 +201,7 @@
                                     <label for="role" class="form-label"><i class="bi bi-shield me-1"></i>角色</label>
                                     <select class="form-select" id="role" name="role" required>
                                         <option value="USER" th:selected="${customer.role == 'USER'}">USER</option>
+                                        <option value="SALES" th:selected="${customer.role == 'SALES'}">SALES</option>
                                         <option value="ADMIN" th:selected="${customer.role == 'ADMIN'}">ADMIN</option>
                                     </select>
                                 </div>
@@ -174,6 +218,26 @@
                         <div class="d-flex justify-content-end gap-2">
                             <button type="button" class="btn btn-secondary" onclick="toggleEditForm()">取消</button>
                             <button type="submit" class="btn btn-primary">保存更改</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/admin/customers/{id}/reset-password(id=${customer.id})}" method="post" class="row g-3 align-items-end">
+                        <div class="col-md-8">
+                            <label for="newPassword" class="form-label"><i class="bi bi-key me-1"></i>重置密码</label>
+                            <input type="password" class="form-control" id="newPassword" name="password" minlength="6" required placeholder="输入新密码">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-warning w-100" onclick="return confirm('确定要重置该用户密码吗？')">
+                                <i class="bi bi-arrow-repeat me-1"></i>重置密码
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -208,6 +272,7 @@
                                     <th><i class="bi bi-info-circle me-1"></i>描述</th>
                                     <th><i class="bi bi-box me-1"></i>相关商品</th>
                                     <th><i class="bi bi-cash me-1"></i>金额</th>
+                                    <th><i class="bi bi-hdd-network me-1"></i>IP</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -215,21 +280,26 @@
                                     <td th:text="${#temporals.format(activity.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
                                     <td>
                                         <span th:if="${activity.activityType == 'VIEW_PRODUCT'}" class="badge bg-info">浏览商品</span>
+                                        <span th:if="${activity.activityType == 'BROWSE_PRODUCTS'}" class="badge bg-info">浏览列表</span>
                                         <span th:if="${activity.activityType == 'ADD_TO_CART'}" class="badge bg-warning">加入购物车</span>
                                         <span th:if="${activity.activityType == 'PURCHASE_PRODUCT'}" class="badge bg-success">购买商品</span>
+                                        <span th:if="${activity.activityType == 'LOGIN'}" class="badge bg-secondary">登录</span>
+                                        <span th:if="${activity.activityType == 'ADMIN_OPERATION'}" class="badge bg-primary">后台操作</span>
                                     </td>
                                     <td th:text="${activity.description}"></td>
                                     <td>
                                         <span th:if="${activity.productName}" th:text="${activity.productName}"></span>
-                                        <span th:unless="${activity.productName}">-</span>
+                                        <span th:unless="${activity.productName}" th:text="${activity.productCategory ?: '-'}">-</span>
                                     </td>
                                     <td>
                                         <span th:if="${activity.amount}" th:text="'¥' + ${#numbers.formatDecimal(activity.amount, 1, 2)}"></span>
+                                        <span th:if="${activity.quantity}" class="text-muted" th:text="' × ' + ${activity.quantity}"></span>
                                         <span th:unless="${activity.amount}">-</span>
                                     </td>
+                                    <td th:text="${activity.ipAddress ?: '-'}">-</td>
                                 </tr>
                                 <tr th:if="${activities.empty}">
-                                    <td colspan="5" class="text-center text-muted py-4">
+                                    <td colspan="6" class="text-center text-muted py-4">
                                         <i class="bi bi-inbox fs-1"></i>
                                         <p class="mt-2 mb-0">暂无活动记录</p>
                                     </td>

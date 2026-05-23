@@ -71,6 +71,23 @@ public class OrderService {
             deductUserBalance(order);
         }
     }
+
+    @Transactional
+    public void cancelOrder(Long orderId, String username) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("订单不存在"));
+
+        if (order.getUser() == null || !order.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("无权取消该订单");
+        }
+        if (!"待处理".equals(order.getStatus())) {
+            throw new RuntimeException("只有待处理订单可以取消");
+        }
+
+        order.setStatus("已取消");
+        orderRepository.save(order);
+        refundUserBalance(order);
+    }
     
     // 减少商品库存
     private void reduceProductStock(Order order) {

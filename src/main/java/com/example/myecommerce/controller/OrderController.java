@@ -8,7 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -46,6 +48,19 @@ public class OrderController {
         model.addAttribute("username", username);
         model.addAttribute("userBalance", user.getBalance());
         return "order-detail";
+    }
+
+    @PostMapping("/{id}/cancel")
+    public String cancelOrder(@PathVariable Long id,
+                              Authentication authentication,
+                              RedirectAttributes redirectAttributes) {
+        try {
+            orderService.cancelOrder(id, authentication.getName());
+            redirectAttributes.addFlashAttribute("success", "订单已取消，订单金额已退回余额。");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/orders/" + id;
     }
 }
 

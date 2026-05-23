@@ -1,0 +1,44 @@
+id,description,discontinued,image_url,name,price,stock
+1,高性能智能手机，8GB+256GB,false,https://d1eh9yux7w8iql.cloudfront.net/product_images/379857_b78107b8-0f6f-467f-9318-b2b5e8a24481.jpg,小米手机,2999.00,99
+2,10.4英寸大屏，学习办公神器,false,https://th.bing.com/th/id/OIP.c7QmH47GIF-VR7pc4h0aXgHaGR?w=234&h=199&c=7&r=0&o=7&dpr=1.5&pid=1.7&rm=3,华为平板,1899.00,47
+3,无线蓝牙耳机，降噪功能,false,https://th.bing.com/th/id/OIP.rL5w1XV4trp35nEI7bSquAHaFc?w=247&h=182&c=7&r=0&o=7&dpr=1.5&pid=1.7&rm=3,苹果耳机,1299.00,200
+4,轻薄本，16GB+512GB,false,https://p3.lefile.cn/fes/cms/2022/10/25/fgi4faziysgywapttpudt6uiv7vc7t347905.jpg,联想笔记本,4999.00,30
+5,高清航拍，便携折叠,false,https://zhongces3.sina.com.cn/products/201802/672728e4e34454a5197aee89747a6a08.png,大疆无人机,3699.00,20
+6,测试商品，请勿购买！,false,https://img.pconline.com.cn/images/upload/upc/tx/onlinephotolib/2008/06/c0/224290590_1596679013124.jpg,test-佳能,1688.00,88
+7,钛金属设计，A17 Pro芯片，专业级摄像系统,false,https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-1inch?wid=2560&hei=1440&fmt=jpeg&qlt=90&.v=1693013840572,iPhone 15 Pro,7999.00,50
+8,AI智能手机，5000万像素，超视觉夜拍,false,https://imgservice.suning.cn/uimg1/b2c/image/d39opMz4qxe4mvM9Gz5WWQ.png,三星Galaxy S24,5999.00,80
+9,哈苏影像，超光影三主摄，100W超级闪充,false,https://img1.mydrivers.com/img/20240108/3a7487a6cd9c41f0b1653731602960a5.jpg,OPPO Find X7,4499.00,60
+10,蔡司影像，天玑9300旗舰芯片，120W双芯闪充,false,https://2c.zol-img.com.cn/product/256/914/ceoLiaHOiKP4o.jpg,vivo X100,4299.00,70
+11,13.6英寸，8GB+256GB，午夜色,false,https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/mba13-midnight-select-202402?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1708367688034,MacBook Air M2,8999.00,25
+12,13.4英寸轻薄本，Intel i7处理器，16GB+512GB,false,https://tse3-mm.cn.bing.net/th/id/OIP-C._e5lrOnRSa7qinF1ktDUKwHaHa?w=166&h=180&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,戴尔XPS 13,6999.00,30
+13,14英寸触控屏，12代酷睿，16GB+512GB,false,https://tse3-mm.cn.bing.net/th/id/OIP-C.WfPY8sfcyqrV5JYixcxTqQHaGV?w=195&h=180&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,华为MateBook 14,5499.00,40
+14,14英寸商务本，碳纤维机身，16GB+1TB,false,https://p4.lefile.cn/product/adminweb/2025/04/28/HaG2iPB7aTGsiQ3nRtjj8N4Wx-4152.jpg,ThinkPad X1 Carbon,9999.00,20
+15,激光探测微尘，强劲吸力，多种吸头,false,https://imgservice.suning.cn/uimg1/b2c/image/vErLR36SZ4sgphqTd1sJlQ.jpg_800w_800h_4e,戴森吸尘器V15,4990.00,15
+16,除菌除甲醛，OLED显示屏，智能控制,false,https://i01.appmifile.com/v1/MI_18455B3E4DA706226CF7535A58E875F0267/pms_1635490144.37164386.png?thumb=1&f=webp&q=85,小米空气净化器4,899.00,100
+17,4L大容量，智能预约，多功能菜单,false,https://dsdcp.smartmidea.net/mcsp/prod/20210422/1619032810609.jpg,美的电饭煲,299.00,150
+18,500升对开门，风冷无霜，一级能效,false,https://imgservice.suning.cn/uimg1/b2c/image/6Rhb2MQsNXBiqk2nJnSZhg.jpg_800w_800h_4e,海尔冰箱BCD-500,3999.00,25
+19,30ml精华液，修护肌底，改善细纹,false,https://imgservice.suning.cn/uimg1/b2c/image/i3bzH48zXNaMRCnWzeYQpg.jpg,兰蔻小黑瓶,1080.00,80
+20,50ml精华液，抗老修护，提亮肤色,false,https://cdn.55haitao.com/bbs/data/attachment/deal/2020/11/29/1364255c8c77aec54b6761fefc1e58d6334e.jpg@!bbsc1,雅诗兰黛小棕瓶,880.00,90
+21,230ml精华液，改善肤质，提亮肌肤,false,https://www.anyserves.shop/fileserver/image/group1/M00/21/54/rBAAcV9rPuWACDhaAAMuVokNmvw212.jpg,SK-II神仙水,1450.00,60
+22,60ml精华面霜，修护滋润，抗老紧致,false,https://tse3-mm.cn.bing.net/th/id/OIP-C.aVIORkzgw-PiqWB6dMMD5wHaHa?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3,海蓝之谜面霜,2680.00,40
+23,经典篮球鞋，复古配色，头层牛皮,false,https://ts1.tc.mm.bing.net/th/id/R-C.6f2726c967b58295cc5bdb9019e17bbf?rik=NOZ%2fiLEs5pk2RA&riu=http%3a%2f%2fwww2.flightclub.cn%2fnews%2fuploads%2fallimg%2f190719%2f12-1ZG9103I7-52.jpg&ehk=f2kYOcJtbfKtFi1tJPSJxs5ySt6RDwsks8SMZCWIVkA%3d&risl=&pid=ImgRaw&r=0,耐克Air Jordan 1,1299.00,50
+24,专业跑步鞋，Boost中底，透气鞋面,false,https://ts2.tc.mm.bing.net/th/id/OIP-C.wwD-NAXWMQtwszTj-BXobwHaEc?rs=1&pid=ImgDetMain&o=7&rm=3,阿迪达斯Ultra Boost,1199.00,70
+25,防水透气，专业登山，三合一设计,false,https://tse3-mm.cn.bing.net/th/id/OIP-C.cuBA1y0JAVPrEtZLSlfF_gHaHa?w=193&h=194&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,北面冲锋衣,1999.00,30
+26,2-3人自动帐篷，防风防雨，便携收纳,false,https://ts4.tc.mm.bing.net/th/id/OIP-C.OiK0BHZTKksBXfyLOnwvigHaHa?rs=1&pid=ImgDetMain&o=7&rm=3,迪卡侬帐篷,399.00,25
+27,混合坚果，节日送礼，1680克装,false,https://tse2-mm.cn.bing.net/th/id/OIP-C.kyndABqlvU4fpck6googWQHaHa?w=199&h=199&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,三只松鼠坚果礼盒,168.00,200
+28,550ml*24瓶，天然饮用水,false,https://image.hinew.com.cn/shop/store/goods/211/211_1556180663043048595.png,农夫山泉矿泉水,35.90,500
+29,250克装，中度烘焙，阿拉比卡豆,false,https://img30.360buyimg.com/popWaterMark/jfs/t10960/253/379195384/375291/9002a87a/59cda273N7d9e26bb.jpg,星巴克咖啡豆,108.00,80
+30,榛果威化巧克力，30粒装礼盒,false,https://image.pp918.com/BrandNews/20201104/20201104113046_0341.jpg,费列罗巧克力,89.90,150
+31,刘慈欣科幻小说，三册套装,false,https://ts2.tc.mm.bing.net/th/id/OIP-C.X6XccZdm1XoLfl-wOhRmQgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3,三体全套,99.00,100
+32,经典硬皮横线本，口袋大小,false,https://tse4-mm.cn.bing.net/th/id/OIP-C.hguvzssI19p_5U7ngpjeEQHaHa?w=198&h=198&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,Moleskine笔记本,118.00,200
+33,FP-78G+系列，练字书法，F尖,false,https://img14.360buyimg.com/pop/s500x500_jfs/t1/174291/16/41750/127587/6503d655Fea27db7a/9137b6b3608350cf.jpg,百乐钢笔,68.00,150
+34,12位大屏幕，商务办公，双电源,false,https://tse4-mm.cn.bing.net/th/id/OIP-C.Tq4Q0nt3u_RXATTMRbfruwHaHa?w=192&h=192&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,得力计算器,45.00,300
+35,可调节亮度，护眼学习，简约设计,false,https://tse4-mm.cn.bing.net/th/id/OIP-C.fZeTEylxLGSoQZ3Q_K7vhwHaHa?w=191&h=191&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,宜家LED台灯,149.00,80
+36,超声波香薰加湿器，静音设计,false,https://tse4-mm.cn.bing.net/th/id/OIP-C.pg_jxPR8HygSCg4YQjWSWQHaHa?w=160&h=180&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,无印良品香薰机,380.00,50
+37,全棉四件套，200x230cm，北欧风,false,https://tse1-mm.cn.bing.net/th/id/OIP-C.bm22OZcT3-DOAf1C7e9ilAHaHa?w=192&h=192&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,Zara Home床品套装,599.00,30
+38,透明塑料，3件套，整理储物,false,https://tse4-mm.cn.bing.net/th/id/OIP-C.RZvlt8uOWKQZXFUQHQCIQwHaEK?w=261&h=180&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,宜家收纳盒,39.90,120
+39,纯棉圆领，男女同款，多色可选,false,https://www.uniqlo.cn/public/image/L3/spl-contents/collaboration/Masterpiece/24SS/assets/imgs/subpage/tshirt/MPT04/relatedProduct_04_01.jpg,优衣库T恤,79.00,200
+40,速干面料，弹性腰间，训练健身,false,https://tse3-mm.cn.bing.net/th/id/OIP-C.E5krdzvYg8QLMnhmakrTcgHaHa?w=184&h=184&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,Nike运动裤,299.00,100
+41,春季新品，印花设计，中长款,false,https://tse2-mm.cn.bing.net/th/id/OIP-C.AuRMAfJG59wpefvV6QlQOgAAAA?w=176&h=176&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,Zara连衣裙,299.00,60
+42,Boost缓震，网面透气，经典三条杠,false,https://tse1-mm.cn.bing.net/th/id/OIP-C.KNGO9_qDr-w01vTf1MfEuQHaHa?w=214&h=214&c=7&r=0&o=7&dpr=1.8&pid=1.7&rm=3,阿迪达斯运动鞋,699.00,80
+43,这是一个测试用商品，请勿下单,true,https://via.placeholder.com/300x300.png?text=TEST+PRODUCT,测试商品-请勿购买,999.99,999
