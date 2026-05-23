@@ -30,7 +30,7 @@ class BackOfficeWorkspaceServiceTest {
         assertThat(service.resolveView(authentication, "product-list")).isEqualTo("sales/product-list");
         assertThat(service.productsPath(authentication)).isEqualTo("/sales/products");
         assertThat(service.ordersPath(authentication)).isEqualTo("/sales/orders");
-        assertThat(service.reportsPath(authentication)).isEqualTo("/sales/reports");
+        assertThat(service.reportsPath(authentication)).isEqualTo("/sales/dashboard");
         assertThat(service.activitiesPath(authentication)).isEqualTo("/sales/activities");
     }
 

@@ -14,10 +14,19 @@ class ProductBrowseDurationTemplateTest {
     void productsPageReportsBrowseDurationOnPageExit() throws IOException {
         String html = Files.readString(Path.of("src/main/resources/templates/products.html"));
 
+        assertThat(html).contains("th:data-track-duration=\"${trackBrowseDuration}\"");
         assertThat(html).contains("data-duration-endpoint");
         assertThat(html).contains("/activities/product-browse-duration");
         assertThat(html).contains("navigator.sendBeacon");
         assertThat(html).contains("visibilitychange");
         assertThat(html).contains("pagehide");
+    }
+
+    @Test
+    void productsPageOnlyShowsPurchaseControlsToCustomers() throws IOException {
+        String html = Files.readString(Path.of("src/main/resources/templates/products.html"));
+
+        assertThat(html).contains("hasRole(''USER'')");
+        assertThat(html).doesNotContain("isAuthenticated()");
     }
 }

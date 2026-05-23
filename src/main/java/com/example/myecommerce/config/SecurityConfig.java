@@ -45,9 +45,10 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .requestMatchers("/admin/customers/**").hasRole("ADMIN")
                         .requestMatchers("/admin/products/**", "/admin/orders/**", "/admin/reports/**", "/admin/activities/**").hasRole("ADMIN")
                         .requestMatchers("/sales/**").hasRole("SALES")
-                        .requestMatchers("/orders/**").authenticated()
-                        .requestMatchers("/addresses/**").authenticated()
-                        .requestMatchers("/cart/**").authenticated()
+                        .requestMatchers("/activities/product-browse-duration").hasRole("USER")
+                        .requestMatchers("/orders/**").hasRole("USER")
+                        .requestMatchers("/addresses/**").hasRole("USER")
+                        .requestMatchers("/cart/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
                 // 配置登录页面

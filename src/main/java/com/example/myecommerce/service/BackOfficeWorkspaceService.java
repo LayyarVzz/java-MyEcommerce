@@ -21,7 +21,7 @@ public class BackOfficeWorkspaceService {
     }
 
     public String reportsPath(Authentication authentication) {
-        return isSales(authentication) ? "/sales/reports" : "/admin/reports";
+        return isSales(authentication) ? "/sales/dashboard" : "/admin/reports";
     }
 
     public String activitiesPath(Authentication authentication) {

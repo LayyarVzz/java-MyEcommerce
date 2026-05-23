@@ -17,8 +17,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Controller
-@RequestMapping({"/admin/reports", "/sales/reports"})
-@PreAuthorize("hasAnyRole('ADMIN', 'SALES')")
+@RequestMapping("/admin/reports")
+@PreAuthorize("hasRole('ADMIN')")
 public class ReportController {
 
     private final ReportService reportService;

@@ -299,7 +299,7 @@
         }
     </style>
 </head>
-<body th:data-track-duration="${loggedIn}"
+<body th:data-track-duration="${trackBrowseDuration}"
       th:data-browse-activity-id="${browseActivityId}"
       th:data-duration-endpoint="@{/activities/product-browse-duration}">
 
@@ -391,7 +391,7 @@
                     <p class="card-text" th:text="${product.description}">商品描述</p>
                     <div class="mt-auto">
                         <div class="price-badge" th:text="'¥' + ${product.price}">¥0.00</div>
-                        <form th:if="${#authorization.expression('isAuthenticated()')}"
+                        <form th:if="${#authorization.expression('hasRole(''USER'')')}"
                               th:action="@{/cart/add}"
                               th:data-ajax-url="@{/cart/add-ajax}"
                               method="post"
@@ -404,7 +404,7 @@
                                 </button>
                             </div>
                         </form>
-                        <a th:unless="${#authorization.expression('isAuthenticated()')}" href="/login" class="btn btn-primary w-100">
+                        <a th:if="${#authorization.expression('isAnonymous()')}" href="/login" class="btn btn-primary w-100">
                             <i class="bi bi-box-arrow-in-right me-1"></i>登录后购买
                         </a>
                     </div>
@@ -441,7 +441,7 @@
                     <p class="card-text" th:text="${product.description}">商品描述</p>
                     <div class="mt-auto">
                         <div class="price-badge" th:text="'¥' + ${product.price}">¥0.00</div>
-                        <form th:if="${#authorization.expression('isAuthenticated()')}"
+                        <form th:if="${#authorization.expression('hasRole(''USER'')')}"
                               th:action="@{/cart/add}"
                               th:data-ajax-url="@{/cart/add-ajax}"
                               method="post"
@@ -454,7 +454,7 @@
                                 </button>
                             </div>
                         </form>
-                        <a th:unless="${#authorization.expression('isAuthenticated()')}" href="/login" class="btn btn-primary w-100">
+                        <a th:if="${#authorization.expression('isAnonymous()')}" href="/login" class="btn btn-primary w-100">
                             <i class="bi bi-box-arrow-in-right me-1"></i>登录后购买
                         </a>
                     </div>
