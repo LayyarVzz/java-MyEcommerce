@@ -15,6 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
@@ -79,6 +80,31 @@ public class ProductController {
         model.addAttribute("selectedCategory", normalizedCategory);
         model.addAttribute("categories", productService.getAvailableCategories());
         return "products";
+    }
+
+    @GetMapping("/products/{id}")
+    public String productDetail(@PathVariable Long id,
+                                Model model,
+                                Authentication authentication) {
+        Product product = productService.getProductById(id);
+        boolean loggedIn = authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+        String username = loggedIn ? authentication.getName() : "游客";
+
+        BigDecimal balance = BigDecimal.ZERO;
+        User currentUser = null;
+        if (loggedIn) {
+            currentUser = userService.getCurrentUser(username);
+            balance = currentUser.getBalance();
+        }
+
+        model.addAttribute("product", product);
+        model.addAttribute("relatedProducts", recommendationService.recommendForContext(currentUser, null, product.getCategory(), 4));
+        model.addAttribute("username", username);
+        model.addAttribute("userBalance", balance);
+        model.addAttribute("loggedIn", loggedIn);
+        return "product-detail";
     }
 
     private String getRecommendationHint(String search, String category) {

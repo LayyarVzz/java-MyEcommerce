@@ -299,31 +299,58 @@
         }
     </style>
 </head>
-<body th:data-track-duration="${trackBrowseDuration}"
+<body class="storefront-page products-page"
+      th:data-track-duration="${trackBrowseDuration}"
       th:data-browse-activity-id="${browseActivityId}"
       th:data-duration-endpoint="@{/activities/product-browse-duration}">
 
 <th:block th:replace="~{fragments/navbar :: navbar(activePage='products')}"></th:block>
 
-<div class="page-header">
+<section class="storefront-hero">
     <div class="container">
-        <h1 class="text-center mb-3">发现精彩商品</h1>
-        <div class="search-container">
-            <form th:action="@{/products}" method="get">
-                <div class="input-group">
-                    <input type="text" name="search" class="form-control" placeholder="搜索您想要的商品..." th:value="${searchKeyword}">
-                    <input type="hidden" name="category" th:value="${selectedCategory}">
-                    <button class="btn btn-primary" type="submit">
-                        <i class="bi bi-search"></i>
-                    </button>
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <div class="hero-kicker mb-3">Curated Market</div>
+                <h1 class="mb-3">把日常用品摆成一间值得逛的店</h1>
+                <p class="mb-4">从热卖推荐到分类筛选，快速找到合适的商品。每件商品都可以进入独立详情页查看价格、库存和购买动作。</p>
+                <div class="market-search">
+                    <form th:action="@{/products}" method="get">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="搜索商品、分类或关键词" th:value="${searchKeyword}">
+                            <input type="hidden" name="category" th:value="${selectedCategory}">
+                            <button class="btn btn-primary px-4" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+            <div class="col-lg-4">
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <strong th:text="${#lists.size(products)}">0</strong>
+                        <span>当前商品</span>
+                    </div>
+                    <div class="hero-stat">
+                        <strong th:text="${categories == null ? 0 : #lists.size(categories)}">0</strong>
+                        <span>可选分类</span>
+                    </div>
+                    <div class="hero-stat">
+                        <strong>24h</strong>
+                        <span>订单流转</span>
+                    </div>
+                    <div class="hero-stat">
+                        <strong th:text="${loggedIn ? username : '游客'}">游客</strong>
+                        <span>当前身份</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
 
 <div class="container">
-    <div class="category-filter d-flex flex-wrap gap-2 mb-4" th:if="${categories != null}">
+    <div class="category-filter category-pills d-flex flex-wrap gap-2 my-4" th:if="${categories != null}">
         <a th:href="@{/products(search=${searchKeyword})}"
            class="btn btn-sm"
            th:classappend="${selectedCategory == null or selectedCategory == ''} ? 'btn-primary' : 'btn-outline-secondary'">
@@ -379,18 +406,23 @@
             <div th:each="product, iterStat : ${recommendationItems}"
                  th:if="${iterStat.index < 8}"
                  class="card recommendation-card h-100">
-                <div class="card-image-wrapper">
+                <a class="card-image-wrapper" th:href="@{/products/{id}(id=${product.id})}" aria-label="查看商品详情">
                         <img th:src="${product.imageUrl ?: '/upload/default.png'}"
                              class="card-img-top"
                              onerror="this.onerror=null;this.src='/upload/default.png';"
                              th:alt="${product.name}">
-                </div>
+                </a>
                 <div class="card-body d-flex flex-column">
-                    <h5 class="card-title" th:text="${product.name}">推荐商品</h5>
+                    <h5 class="card-title">
+                        <a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.name}">推荐商品</a>
+                    </h5>
                     <span class="badge bg-light text-dark border align-self-start mb-2" th:text="${product.category ?: '综合商品'}">综合商品</span>
                     <p class="card-text" th:text="${product.description}">商品描述</p>
                     <div class="mt-auto">
                         <div class="price-badge" th:text="'¥' + ${product.price}">¥0.00</div>
+                        <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-eye me-1"></i>查看详情
+                        </a>
                         <form th:if="${#authorization.expression('hasRole(''USER'')')}"
                               th:action="@{/cart/add}"
                               th:data-ajax-url="@{/cart/add-ajax}"
@@ -428,19 +460,27 @@
 
     <div class="product-grid" th:if="${!#lists.isEmpty(products)}">
         <div th:each="product : ${products}" class="product-grid-item">
-            <div class="card h-100">
-                <div class="card-image-wrapper">
+            <div class="card product-card h-100">
+                <a class="card-image-wrapper" th:href="@{/products/{id}(id=${product.id})}" aria-label="查看商品详情">
                     <img th:src="${product.imageUrl ?: '/upload/default.png'}"
                          class="card-img-top"
                          onerror="this.onerror=null;this.src='/upload/default.png';"
                          th:alt="${product.name}">
-                </div>
+                </a>
                 <div class="card-body d-flex flex-column">
-                    <h5 class="card-title" th:text="${product.name}">商品名称</h5>
-                    <span class="badge bg-light text-dark border align-self-start mb-2" th:text="${product.category ?: '综合商品'}">综合商品</span>
+                    <h5 class="card-title">
+                        <a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.name}">商品名称</a>
+                    </h5>
+                    <div class="product-meta-row mb-2">
+                        <span class="badge bg-light text-dark border" th:text="${product.category ?: '综合商品'}">综合商品</span>
+                        <span class="text-muted small" th:text="${product.stock != null ? '库存 ' + product.stock : '库存 0'}">库存 0</span>
+                    </div>
                     <p class="card-text" th:text="${product.description}">商品描述</p>
                     <div class="mt-auto">
                         <div class="price-badge" th:text="'¥' + ${product.price}">¥0.00</div>
+                        <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-eye me-1"></i>查看详情
+                        </a>
                         <form th:if="${#authorization.expression('hasRole(''USER'')')}"
                               th:action="@{/cart/add}"
                               th:data-ajax-url="@{/cart/add-ajax}"

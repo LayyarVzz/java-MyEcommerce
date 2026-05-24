@@ -1,5 +1,6 @@
 package com.example.myecommerce.controller;
 
+import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.entity.UserActivity;
 import com.example.myecommerce.service.ProductService;
@@ -51,8 +52,6 @@ class ProductControllerRoleBoundaryTest {
     @BeforeEach
     void setUp() {
         controller = new ProductController(productService, userService, userActivityService, recommendationService);
-        when(productService.searchProducts(null, null)).thenReturn(List.of());
-        when(productService.getAvailableCategories()).thenReturn(List.of());
     }
 
     @Test
@@ -61,6 +60,8 @@ class ProductControllerRoleBoundaryTest {
         UserActivity browseActivity = new UserActivity();
         browseActivity.setId(99L);
 
+        when(productService.searchProducts(null, null)).thenReturn(List.of());
+        when(productService.getAvailableCategories()).thenReturn(List.of());
         when(userService.getCurrentUser("customer")).thenReturn(customer);
         when(request.getRemoteAddr()).thenReturn("127.0.0.1");
         when(userActivityService.recordProductBrowse(customer, null, null, "127.0.0.1")).thenReturn(browseActivity);
@@ -77,6 +78,8 @@ class ProductControllerRoleBoundaryTest {
     @Test
     void salesBrowsingProductListDoesNotCreateCustomerBrowseRecord() {
         User sales = user(12L, "sales");
+        when(productService.searchProducts(null, null)).thenReturn(List.of());
+        when(productService.getAvailableCategories()).thenReturn(List.of());
         when(userService.getCurrentUser("sales")).thenReturn(sales);
         when(recommendationService.recommendForContext(sales, null, null, 8)).thenReturn(List.of());
 
@@ -89,12 +92,45 @@ class ProductControllerRoleBoundaryTest {
         verify(userActivityService, never()).recordProductBrowse(any(), eq(null), eq(null), any());
     }
 
+    @Test
+    void productDetailShowsReusableProductTemplateData() {
+        User customer = user(21L, "customer");
+        Product product = product(7L, "台灯", "家居");
+        Product recommended = product(8L, "香薰", "家居");
+
+        when(productService.getProductById(7L)).thenReturn(product);
+        when(userService.getCurrentUser("customer")).thenReturn(customer);
+        when(recommendationService.recommendForContext(customer, null, "家居", 4)).thenReturn(List.of(recommended));
+
+        Model model = new ExtendedModelMap();
+        String view = controller.productDetail(7L, model, authentication("customer", "ROLE_USER"));
+
+        assertThat(view).isEqualTo("product-detail");
+        assertThat(model.asMap()).containsEntry("product", product);
+        assertThat(model.asMap()).containsEntry("relatedProducts", List.of(recommended));
+        assertThat(model.asMap()).containsEntry("loggedIn", true);
+        assertThat(model.asMap()).containsEntry("username", "customer");
+        assertThat(model.asMap()).containsEntry("userBalance", BigDecimal.ZERO);
+    }
+
     private User user(Long id, String username) {
         User user = new User();
         user.setId(id);
         user.setUsername(username);
         user.setBalance(BigDecimal.ZERO);
         return user;
+    }
+
+    private Product product(Long id, String name, String category) {
+        Product product = new Product();
+        product.setId(id);
+        product.setName(name);
+        product.setCategory(category);
+        product.setDescription(name + "描述");
+        product.setPrice(BigDecimal.TEN);
+        product.setStock(10);
+        product.setImageUrl("/upload/default.png");
+        return product;
     }
 
     private Authentication authentication(String username, String role) {

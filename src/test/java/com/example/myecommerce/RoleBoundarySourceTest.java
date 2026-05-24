@@ -14,6 +14,7 @@ class RoleBoundarySourceTest {
     void customerShoppingRoutesAreLimitedToCustomers() throws IOException {
         String securityConfig = Files.readString(Path.of("src/main/java/com/example/myecommerce/config/SecurityConfig.java"));
 
+        assertThat(securityConfig).contains(".requestMatchers(\"/\", \"/products\", \"/products/**\", \"/register\", \"/login\", \"/css/**\", \"/js/**\", \"/upload/**\").permitAll()");
         assertThat(securityConfig).contains(".requestMatchers(\"/orders/**\").hasRole(\"USER\")");
         assertThat(securityConfig).contains(".requestMatchers(\"/addresses/**\").hasRole(\"USER\")");
         assertThat(securityConfig).contains(".requestMatchers(\"/cart/**\").hasRole(\"USER\")");

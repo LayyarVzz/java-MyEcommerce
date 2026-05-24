@@ -1,0 +1,127 @@
+/* Back office shell: quiet, dense, and related to the storefront palette. */
+:root {
+    --office-ink: #17231d;
+    --office-muted: #647067;
+    --office-bg: #f4f0e8;
+    --office-surface: #fffaf1;
+    --office-green: #173b2c;
+    --office-copper: #b46a3c;
+    --office-blue: #315d76;
+    --office-line: rgba(23, 35, 29, 0.12);
+    --primary-gradient: linear-gradient(135deg, var(--office-green), var(--office-blue));
+}
+
+body {
+    background: var(--office-bg) !important;
+    color: var(--office-ink);
+    font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif !important;
+}
+
+.admin-navbar {
+    background: var(--office-green) !important;
+    border-bottom: 3px solid var(--office-copper) !important;
+}
+
+.sales-navbar {
+    background: linear-gradient(135deg, var(--office-green), var(--office-blue)) !important;
+    border-bottom: 3px solid var(--office-copper);
+}
+
+.admin-navbar,
+.sales-navbar {
+    box-shadow: 0 12px 28px rgba(23, 35, 29, 0.15) !important;
+}
+
+.admin-navbar .nav-link,
+.sales-navbar .nav-link {
+    border-radius: 8px !important;
+}
+
+.workspace-badge {
+    border-radius: 8px !important;
+}
+
+.page-header {
+    background: var(--office-surface) !important;
+    border-bottom: 1px solid var(--office-line) !important;
+    box-shadow: none !important;
+}
+
+.card {
+    border: 1px solid var(--office-line) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 24px rgba(23, 35, 29, 0.07) !important;
+}
+
+.card:hover {
+    transform: none !important;
+}
+
+.card-header {
+    background: #fffaf1 !important;
+    border-bottom: 1px solid var(--office-line) !important;
+    color: var(--office-ink) !important;
+}
+
+.table {
+    border: 1px solid var(--office-line);
+    border-radius: 8px !important;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(23, 35, 29, 0.06) !important;
+}
+
+.table thead th,
+.table th {
+    background: var(--office-green) !important;
+    color: #fffaf1 !important;
+    border: 0 !important;
+}
+
+.table tbody td {
+    border-color: rgba(23, 35, 29, 0.08) !important;
+}
+
+.btn {
+    border-radius: 8px !important;
+    font-weight: 650;
+}
+
+.btn-primary {
+    background: var(--office-green) !important;
+    border-color: var(--office-green) !important;
+}
+
+.btn-primary:hover {
+    background: #0f2a1e !important;
+    border-color: #0f2a1e !important;
+}
+
+.btn-outline-primary {
+    border-color: var(--office-green) !important;
+    color: var(--office-green) !important;
+}
+
+.btn-outline-primary:hover {
+    background: var(--office-green) !important;
+    color: #fff !important;
+}
+
+.badge {
+    border-radius: 999px !important;
+}
+
+.role-stat {
+    border-left: 4px solid var(--office-copper) !important;
+}
+
+.form-control,
+.form-select {
+    border-radius: 8px !important;
+    border-color: var(--office-line) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--office-copper) !important;
+    box-shadow: 0 0 0 0.2rem rgba(180, 106, 60, 0.16) !important;
+}

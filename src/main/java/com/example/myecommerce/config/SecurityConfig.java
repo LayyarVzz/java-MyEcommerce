@@ -40,7 +40,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .csrf(AbstractHttpConfigurer::disable)
                 // 配置请求权限
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/products", "/register", "/login", "/css/**", "/js/**", "/upload/**").permitAll()
+                        .requestMatchers("/", "/products", "/products/**", "/register", "/login", "/css/**", "/js/**", "/upload/**").permitAll()
                         .requestMatchers("/admin/dashboard").hasRole("ADMIN")
                         .requestMatchers("/admin/customers/**").hasRole("ADMIN")
                         .requestMatchers("/admin/products/**", "/admin/orders/**", "/admin/reports/**", "/admin/activities/**").hasRole("ADMIN")
