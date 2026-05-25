@@ -23,6 +23,8 @@ public class Address {
     @Column(nullable = false)
     private String phone; // 联系电话
 
+    private String email; // 收件邮箱
+
     @Column(nullable = false)
     private String address; // 详细地址
 

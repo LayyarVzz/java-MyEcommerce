@@ -3,10 +3,14 @@ package com.example.myecommerce.controller;
 import com.example.myecommerce.entity.Address;
 import com.example.myecommerce.service.AddressService;
 import com.example.myecommerce.service.UserService;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/addresses")
@@ -30,6 +34,19 @@ public class AddressController {
         return "address-list";
     }
 
+    private boolean isValidEmail(String email) {
+        if (!StringUtils.hasText(email)) {
+            return false;
+        }
+        try {
+            InternetAddress address = new InternetAddress(email, true);
+            address.validate();
+            return email.equals(address.getAddress());
+        } catch (AddressException ex) {
+            return false;
+        }
+    }
+
     @GetMapping("/add")
     public String showAddAddressForm(Model model, Authentication authentication) {
         String username = authentication.getName();
@@ -40,6 +57,7 @@ public class AddressController {
         Address address = new Address();
         address.setIsDefault(false); // 明确设置默认值
         com.example.myecommerce.entity.User user = userService.getCurrentUser(username);
+        address.setEmail(user.getEmail());
         model.addAttribute("address", address);
         model.addAttribute("username", username);
         model.addAttribute("userBalance", user.getBalance());
@@ -51,16 +69,25 @@ public class AddressController {
             @RequestParam String contactName,
             @RequestParam String phone,
             @RequestParam String address,
+            @RequestParam String email,
             @RequestParam(required = false, defaultValue = "false") Boolean isDefault,
-            Authentication authentication) {
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
         String username = authentication.getName();
         if (!addressService.canAddMoreAddresses(username)) {
             return "redirect:/addresses";
         }
 
+        String trimmedEmail = email == null ? "" : email.trim();
+        if (!isValidEmail(trimmedEmail)) {
+            redirectAttributes.addFlashAttribute("addressError", "请输入有效的收件邮箱。");
+            return "redirect:/addresses/add";
+        }
+
         Address addr = new Address();
         addr.setContactName(contactName);
         addr.setPhone(phone);
+        addr.setEmail(trimmedEmail);
         addr.setAddress(address);
         addr.setIsDefault(isDefault != null ? isDefault : false);
 
@@ -91,8 +118,10 @@ public class AddressController {
             @RequestParam String contactName,
             @RequestParam String phone,
             @RequestParam String address,
+            @RequestParam String email,
             @RequestParam(required = false) Boolean isDefault,
-            Authentication authentication) {
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
 
         String username = authentication.getName();
         Address existingAddress = addressService.getAddressById(id);
@@ -101,8 +130,15 @@ public class AddressController {
             return "redirect:/addresses";
         }
 
+        String trimmedEmail = email == null ? "" : email.trim();
+        if (!isValidEmail(trimmedEmail)) {
+            redirectAttributes.addFlashAttribute("addressError", "请输入有效的收件邮箱。");
+            return "redirect:/addresses/edit/" + id;
+        }
+
         existingAddress.setContactName(contactName);
         existingAddress.setPhone(phone);
+        existingAddress.setEmail(trimmedEmail);
         existingAddress.setAddress(address);
 
         // 始终设置 isDefault，没勾选就是 false

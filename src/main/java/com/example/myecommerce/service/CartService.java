@@ -5,6 +5,7 @@ import com.example.myecommerce.repository.CartItemRepository;
 import com.example.myecommerce.repository.OrderItemRepository;
 import com.example.myecommerce.repository.OrderRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -80,6 +81,26 @@ public class CartService {
         cartItemRepository.deleteById(cartItemId);
     }
 
+    // 更新购物车项数量
+    public void updateCartItemQuantity(String username, Long cartItemId, int quantity) {
+        if (quantity < 1) {
+            throw new RuntimeException("商品数量必须至少为 1");
+        }
+
+        User user = userService.getCurrentUser(username);
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("购物车项不存在"));
+
+        if (cartItem.getUser() == null
+                || cartItem.getUser().getId() == null
+                || !cartItem.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("购物车项不存在");
+        }
+
+        cartItem.setQuantity(quantity);
+        cartItemRepository.save(cartItem);
+    }
+
     // 清空购物车（结算后调用）
     public void clearCart(String username) {
         User user = userService.getCurrentUser(username);
@@ -142,22 +163,11 @@ public class CartService {
         order.setOrderDate(LocalDateTime.now());
         order.setTotalAmount(totalAmount);
         order.setStatus("待处理");
-        // 设置收货地址信息
-        if (addressId != null) {
-            Address address = addressService.getAddressById(addressId);
-            if (address != null && address.getUser().getId().equals(user.getId())) {
-                order.setContactName(address.getContactName());
-                order.setContactPhone(address.getPhone());
-                order.setDeliveryAddress(address.getAddress());
-            }
-        } else {
-            Address defaultAddress = addressService.getDefaultAddress(username);
-            if (defaultAddress != null) {
-                order.setContactName(defaultAddress.getContactName());
-                order.setContactPhone(defaultAddress.getPhone());
-                order.setDeliveryAddress(defaultAddress.getAddress());
-            }
-        }
+        Address deliveryAddress = addressId != null
+                ? addressService.getAddressById(addressId)
+                : addressService.getDefaultAddress(username);
+        applyDeliveryAddress(user, order, deliveryAddress);
+
         // 保存订单
         order = orderRepository.save(order);
         // 创建订单项
@@ -184,5 +194,19 @@ public class CartService {
             );
         }
         return order;
+    }
+
+    private void applyDeliveryAddress(User user, Order order, Address address) {
+        if (address == null || !address.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("请选择有效的收货地址");
+        }
+        if (!StringUtils.hasText(address.getEmail())) {
+            throw new RuntimeException("请先为收货地址填写收件邮箱");
+        }
+
+        order.setContactName(address.getContactName());
+        order.setContactPhone(address.getPhone());
+        order.setContactEmail(address.getEmail().trim());
+        order.setDeliveryAddress(address.getAddress());
     }
 }

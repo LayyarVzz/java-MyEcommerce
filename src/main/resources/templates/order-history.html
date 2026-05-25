@@ -80,7 +80,10 @@
                         <form th:if="${order.status == '待处理'}"
                               th:action="@{/orders/{id}/cancel(id=${order.id})}"
                               method="post"
-                              onsubmit="return confirm('确认取消该订单吗？订单金额将退回余额。')">
+                              data-confirm-title="取消订单"
+                              data-confirm-message="确认取消该订单吗？订单金额将退回余额。"
+                              data-confirm-text="确认取消"
+                              data-confirm-variant="warning">
                             <button type="submit" class="btn btn-outline-danger btn-sm">
                                 <i class="bi bi-x-circle me-1"></i>取消订单
                             </button>

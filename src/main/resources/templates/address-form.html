@@ -120,6 +120,9 @@
 <div class="container mb-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
+            <div th:if="${addressError}" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${addressError}">请输入有效的收件邮箱。</span>
+            </div>
             <div class="card">
                 <div class="card-header">
                     <h5>
@@ -147,6 +150,14 @@
                             </label>
                             <input type="text" class="form-control" id="phone" th:field="*{phone}" required
                                    placeholder="请输入手机号码">
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="email" class="form-label">
+                                <i class="bi bi-envelope-at me-1"></i>收件邮箱
+                            </label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" required
+                                   placeholder="请输入该地址接收订单邮件的邮箱">
                         </div>
 
                         <div class="mb-4">

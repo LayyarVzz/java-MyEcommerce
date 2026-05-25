@@ -9,6 +9,8 @@ import com.example.myecommerce.service.MailService;
 import com.example.myecommerce.service.UserService;
 import com.example.myecommerce.util.RequestUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -23,6 +25,8 @@ import java.util.Map;
 @Controller
 @RequestMapping("/cart")
 public class CartController {
+    private static final Logger log = LoggerFactory.getLogger(CartController.class);
+
     private final CartService cartService;
     private final AddressService addressService;
     private final UserService userService;
@@ -102,6 +106,21 @@ public class CartController {
         return "redirect:/cart"; // 跳转回购物车页
     }
 
+    // 更新购物车项数量
+    @PostMapping("/update/{id}")
+    public String updateQuantity(@PathVariable Long id,
+                                 @RequestParam Integer quantity,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        try {
+            cartService.updateCartItemQuantity(authentication.getName(), id, quantity);
+            redirectAttributes.addFlashAttribute("success", "购物车数量已更新");
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/cart";
+    }
+
     // 结算购物车 - 显示地址选择页面
     @GetMapping("/checkout")
     public String showCheckout(Model model, Authentication authentication) {
@@ -137,8 +156,17 @@ public class CartController {
             Order order = cartService.createOrderFromCart(username, addressId, RequestUtils.getClientIp(request));
 
             // 发送订单确认邮件
-            User user = userService.getCurrentUser(username);
-            mailService.sendOrderConfirm(user.getEmail(), order.getOrderNo(), order.getTotalAmount());
+            try {
+                mailService.sendOrderConfirm(order.getContactEmail(), order.getOrderNo(), order.getTotalAmount());
+            } catch (RuntimeException e) {
+                Throwable rootCause = e.getCause() != null ? e.getCause() : e;
+                log.warn("Order confirmation email failed for order {}: {}", order.getOrderNo(), rootCause.getMessage());
+                log.debug("Order confirmation email failure details", e);
+                redirectAttributes.addFlashAttribute(
+                        "warning",
+                        "订单已创建，但确认邮件发送失败。请检查邮件配置或网络后稍后重试。"
+                );
+            }
 
             // 清空购物车
             cartService.clearCart(username);

@@ -4,9 +4,10 @@ import com.example.myecommerce.entity.Address;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.repository.AddressRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AddressService {
@@ -18,9 +19,12 @@ public class AddressService {
         this.userService = userService;
     }
 
+    @Transactional
     public List<Address> getUserAddresses(String username) {
         User user = userService.getCurrentUser(username);
-        return addressRepository.findByUser(user);
+        List<Address> addresses = addressRepository.findByUser(user);
+        normalizeDefaultAddress(addresses);
+        return addresses;
     }
 
     public Address getAddressById(Long id) {
@@ -49,52 +53,47 @@ public class AddressService {
         addressRepository.save(address);
     }
 
-    // AddressService.java
+    @Transactional
     public void updateAddress(String username, Address address) {
         User user = userService.getCurrentUser(username);
         address.setUser(user);
 
-        // 获取数据库中的原始地址
         Address originalAddress = addressRepository.findById(address.getId())
                 .orElseThrow(() -> new RuntimeException("地址不存在"));
 
-        // 如果用户没有明确指定默认状态，则保持原样
+        if (!originalAddress.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("无权修改此地址");
+        }
+
         if (address.getIsDefault() == null) {
             address.setIsDefault(originalAddress.getIsDefault());
         }
 
-        // 处理默认地址状态变更
-        if (address.getIsDefault() != originalAddress.getIsDefault()) {
-            if (Boolean.TRUE.equals(address.getIsDefault())) {
-                // 用户想设为默认地址
-                addressRepository.unsetDefaultAddresses(user);
+        if (Boolean.TRUE.equals(address.getIsDefault())) {
+            addressRepository.unsetDefaultAddresses(user);
+            address.setIsDefault(true);
+        } else {
+            List<Address> userAddresses = addressRepository.findByUser(user);
+
+            if (userAddresses.size() <= 1) {
+                address.setIsDefault(true);
             } else {
-                // 用户想取消默认地址
-                List<Address> userAddresses = addressRepository.findByUser(user);
+                long otherDefaultCount = userAddresses.stream()
+                        .filter(addr -> Boolean.TRUE.equals(addr.getIsDefault()) && !addr.getId().equals(address.getId()))
+                        .count();
 
-                // 检查是否还有其他地址
-                if (userAddresses.size() <= 1) {
-                    // 只有一个地址，不能取消默认状态
-                    address.setIsDefault(true);
-                } else {
-                    // 检查是否还有其他默认地址
-                    long otherDefaultCount = userAddresses.stream()
-                            .filter(addr -> addr.getIsDefault() && !addr.getId().equals(address.getId()))
-                            .count();
+                if (otherDefaultCount == 0) {
+                    Address otherAddress = userAddresses.stream()
+                            .filter(addr -> !addr.getId().equals(address.getId()))
+                            .findFirst()
+                            .orElse(null);
 
-                    if (otherDefaultCount == 0) {
-                        // 没有其他默认地址，需要先设置另一个地址为默认地址
-                        Address otherAddress = userAddresses.stream()
-                                .filter(addr -> !addr.getId().equals(address.getId()))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (otherAddress != null) {
-                            otherAddress.setIsDefault(true);
-                            addressRepository.save(otherAddress);
-                        }
+                    if (otherAddress != null) {
+                        otherAddress.setIsDefault(true);
+                        addressRepository.save(otherAddress);
                     }
                 }
+                address.setIsDefault(false);
             }
         }
 
@@ -129,6 +128,7 @@ public class AddressService {
         }
     }
 
+    @Transactional
     public void setDefaultAddress(String username, Long addressId) {
         User user = userService.getCurrentUser(username);
         Address address = addressRepository.findById(addressId)
@@ -148,18 +148,33 @@ public class AddressService {
 
     public Address getDefaultAddress(String username) {
         User user = userService.getCurrentUser(username);
-        Optional<Address> defaultAddress = addressRepository.findByUserAndIsDefaultTrue(user);
+        List<Address> addresses = addressRepository.findByUser(user);
+        normalizeDefaultAddress(addresses);
 
-        // 如果没有默认地址，返回最早的地址
-        if (defaultAddress.isEmpty()) {
-            List<Address> addresses = addressRepository.findByUser(user);
-            if (!addresses.isEmpty()) {
-                return addresses.stream()
-                        .min((a1, a2) -> a1.getCreatedAt().compareTo(a2.getCreatedAt()))
-                        .orElse(addresses.get(0));
-            }
+        return addresses.stream()
+                .filter(address -> Boolean.TRUE.equals(address.getIsDefault()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private void normalizeDefaultAddress(List<Address> addresses) {
+        if (addresses.isEmpty()) {
+            return;
         }
 
-        return defaultAddress.orElse(null);
+        Address selectedDefault = addresses.stream()
+                .filter(address -> Boolean.TRUE.equals(address.getIsDefault()))
+                .min(Comparator.comparing(Address::getCreatedAt))
+                .orElseGet(() -> addresses.stream()
+                        .min(Comparator.comparing(Address::getCreatedAt))
+                        .orElse(addresses.get(0)));
+
+        for (Address address : addresses) {
+            boolean shouldBeDefault = address.getId().equals(selectedDefault.getId());
+            if (!Boolean.valueOf(shouldBeDefault).equals(address.getIsDefault())) {
+                address.setIsDefault(shouldBeDefault);
+                addressRepository.save(address);
+            }
+        }
     }
 }

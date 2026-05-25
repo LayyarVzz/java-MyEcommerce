@@ -146,10 +146,12 @@
                         <form th:action="${productsPath + '/' + product.id}"
                               method="post"
                               style="display:inline;"
-                              th:if="${product.discontinued != null and !product.discontinued}">
+                              th:if="${product.discontinued != null and !product.discontinued}"
+                              data-confirm-title="下架商品"
+                              data-confirm-message="确定要下架这个商品吗？下架后商品将不再显示在商品列表中。"
+                              data-confirm-text="确认下架">
                             <button type="submit"
-                                    class="btn btn-sm btn-danger"
-                                    onclick="return confirm('确定要下架这个商品吗？下架后商品将不再显示在商品列表中。')">
+                                    class="btn btn-sm btn-danger">
                                 <i class="bi bi-arrow-down-circle me-1"></i>下架
                             </button>
                         </form>

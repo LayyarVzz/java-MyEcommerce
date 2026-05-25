@@ -36,6 +36,9 @@ public class Order {
     @Column(name = "contact_phone")
     private String contactPhone;
 
+    @Column(name = "contact_email")
+    private String contactEmail;
+
     @Column(name = "delivery_address")
     private String deliveryAddress;
 
