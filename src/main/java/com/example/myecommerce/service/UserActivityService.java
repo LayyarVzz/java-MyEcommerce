@@ -135,6 +135,10 @@ public class UserActivityService {
         return userActivityRepository.findAllByOrderByTimestampDesc();
     }
 
+    public List<UserActivity> getCustomerActivities() {
+        return userActivityRepository.findByUserRoleOrderByTimestampDesc("USER");
+    }
+
     public List<UserActivity> getViewActivitiesByUser(Long userId) {
         return userActivityRepository.findViewActivitiesByUserId(userId);
     }

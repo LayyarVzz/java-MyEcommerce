@@ -8,6 +8,245 @@
             background: #f8f9fa;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
+
+        .order-info-card .card-header h5 {
+            margin: 0;
+        }
+
+        .order-detail-hero {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .order-detail-title h2 {
+            margin: 0;
+            font-weight: 750;
+            color: #102a2a;
+        }
+
+        .order-detail-meta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.55rem;
+            color: #647067;
+            font-weight: 650;
+        }
+
+        .order-detail-meta .order-id-chip {
+            background: #fffaf1;
+            border: 1px solid rgba(180, 106, 60, 0.22);
+            border-radius: 999px;
+            color: #8a3f18;
+            padding: 0.2rem 0.7rem;
+        }
+
+        .order-back-link {
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid rgba(23, 35, 29, 0.12);
+            border-radius: 999px;
+            color: #173b2c;
+            display: inline-flex;
+            font-weight: 700;
+            gap: 0.45rem;
+            padding: 0.55rem 0.9rem;
+            text-decoration: none;
+            white-space: nowrap;
+            box-shadow: 0 8px 18px rgba(23, 35, 29, 0.06);
+        }
+
+        .order-back-link:hover {
+            border-color: rgba(180, 106, 60, 0.4);
+            color: #0f2a1e;
+            transform: translateY(-1px);
+        }
+
+        .order-workbench {
+            display: grid;
+            gap: 1.35rem;
+        }
+
+        .order-overview-strip {
+            background: #f8fbf9;
+            border: 1px solid rgba(23, 35, 29, 0.1);
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: minmax(140px, 0.8fr) minmax(130px, 0.7fr) minmax(150px, 0.8fr) minmax(190px, 1fr);
+            overflow: hidden;
+        }
+
+        .order-overview-item {
+            border-right: 1px solid rgba(23, 35, 29, 0.08);
+            padding: 0.95rem 1rem;
+        }
+
+        .order-overview-item:last-child {
+            border-right: 0;
+        }
+
+        .order-overview-label {
+            color: #647067;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .order-overview-value {
+            color: #17231d;
+            font-size: 1.05rem;
+            font-weight: 750;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        .order-overview-value--amount {
+            color: #8a3f18;
+        }
+
+        .order-processing-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.65fr);
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        .order-section-title {
+            align-items: center;
+            color: #173b2c;
+            display: flex;
+            font-size: 1rem;
+            font-weight: 750;
+            gap: 0.5rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .order-detail-list {
+            display: grid;
+            gap: 0;
+            margin: 0;
+        }
+
+        .order-detail-row {
+            display: grid;
+            grid-template-columns: 112px minmax(0, 1fr);
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(23, 35, 29, 0.08);
+        }
+
+        .order-detail-row:last-child {
+            border-bottom: 0;
+        }
+
+        .order-detail-row dt {
+            color: #647067;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .order-detail-row dd {
+            color: #17231d;
+            font-weight: 650;
+            margin: 0;
+            word-break: break-word;
+        }
+
+        .order-status-panel {
+            align-self: stretch;
+            background: linear-gradient(180deg, #f8fbf9 0%, #fffaf1 100%);
+            border: 1px solid rgba(23, 35, 29, 0.12);
+            border-radius: 8px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+            padding: 1rem;
+        }
+
+        .status-current-card {
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid rgba(23, 35, 29, 0.08);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.85rem;
+        }
+
+        .status-current-label {
+            color: #647067;
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .status-current-value {
+            color: #17231d;
+            font-weight: 750;
+        }
+
+        .status-select-label {
+            color: #647067;
+            display: block;
+            font-size: 0.86rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .status-action-stack {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .order-status-form .form-select {
+            min-height: 48px;
+            min-width: 100%;
+            width: 100% !important;
+        }
+
+        .order-status-form .btn {
+            min-height: 48px;
+            width: 100%;
+        }
+
+        @media (max-width: 575.98px) {
+            .order-detail-hero {
+                display: grid;
+            }
+
+            .order-back-link {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .order-overview-strip,
+            .order-processing-layout,
+            .order-detail-row {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .order-overview-item {
+                border-right: 0;
+                border-bottom: 1px solid rgba(23, 35, 29, 0.08);
+            }
+
+            .order-overview-item:last-child {
+                border-bottom: 0;
+            }
+
+            .order-status-panel {
+                padding: 1rem;
+            }
+
+            .order-status-form .btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -15,77 +254,117 @@
 <th:block th:replace="~{fragments/sales-shell :: navbar(activePage='sales-orders')}"></th:block>
 
 <div class="container mt-4">
-    <h2>订单详情</h2>
-    
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a th:href="${ordersPath}">订单处理</a></li>
-        <li class="breadcrumb-item active" th:text="${order.id}"></li>
-    </ol>
+    <div class="order-detail-hero">
+        <div class="order-detail-title">
+            <h2>订单详情</h2>
+            <div class="order-detail-meta">
+                <span>当前订单</span>
+                <span class="order-id-chip" th:text="'#' + ${order.id}">#11</span>
+            </div>
+        </div>
+        <a class="order-back-link" th:href="${ordersPath}">
+            <i class="bi bi-arrow-left"></i>
+            返回订单处理
+        </a>
+    </div>
     
     <div class="row mb-3">
         <div class="col-md-12">
-            <div class="card">
+            <div class="card order-info-card">
                 <div class="card-header">
                     <h5>订单信息</h5>
                 </div>
                 <div class="card-body">
-                    <table class="table table-borderless">
-                        <tr>
-                            <th>订单号:</th>
-                            <td th:text="${order.id}"></td>
-                        </tr>
-                        <tr>
-                            <th>用户:</th>
-                            <td>
-                                <span th:text="${order.user.username}"></span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>下单时间:</th>
-                            <td th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                        </tr>
-                        <tr>
-                            <th>总金额:</th>
-                            <td th:text="'¥' + ${order.totalAmount}"></td>
-                        </tr>
-                        <tr>
-                            <th>状态:</th>
-                            <td>
-                                <span th:switch="${order.status}">
-                                    <span th:case="'待处理'" class="badge bg-warning">待处理</span>
-                                    <span th:case="'已确认'" class="badge bg-info">已确认</span>
-                                    <span th:case="'已发货'" class="badge bg-primary">已发货</span>
-                                    <span th:case="'已送达'" class="badge bg-success">已送达</span>
-                                    <span th:case="'已取消'" class="badge bg-danger">已取消</span>
-                                </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>联系人:</th>
-                            <td th:text="${order.contactName}"></td>
-                        </tr>
-                        <tr>
-                            <th>联系电话:</th>
-                            <td th:text="${order.contactPhone}"></td>
-                        </tr>
-                        <tr>
-                            <th>收货地址:</th>
-                            <td th:text="${order.deliveryAddress}"></td>
-                        </tr>
-                    </table>
-                    
-                    <form th:action="${ordersPath + '/' + order.id + '/status'}" method="post" class="d-inline">
-                        <div class="input-group">
-                            <select name="status" class="form-select">
-                                <option value="待处理" th:selected="${order.status == '待处理'}">待处理</option>
-                                <option value="已确认" th:selected="${order.status == '已确认'}">已确认</option>
-                                <option value="已发货" th:selected="${order.status == '已发货'}">已发货</option>
-                                <option value="已送达" th:selected="${order.status == '已送达'}">已送达</option>
-                                <option value="已取消" th:selected="${order.status == '已取消'}">已取消</option>
-                            </select>
-                            <button type="submit" class="btn btn-primary">更新状态</button>
+                    <div class="order-workbench">
+                        <div class="order-overview-strip">
+                            <div class="order-overview-item">
+                                <div class="order-overview-label">当前状态</div>
+                                <div class="order-overview-value">
+                                    <span th:switch="${order.status}">
+                                        <span th:case="'待处理'" class="badge bg-warning">待处理</span>
+                                        <span th:case="'已确认'" class="badge bg-info">已确认</span>
+                                        <span th:case="'已发货'" class="badge bg-primary">已发货</span>
+                                        <span th:case="'已送达'" class="badge bg-success">已送达</span>
+                                        <span th:case="'已取消'" class="badge bg-danger">已取消</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="order-overview-item">
+                                <div class="order-overview-label">订单号</div>
+                                <div class="order-overview-value" th:text="${order.id}">11</div>
+                            </div>
+                            <div class="order-overview-item">
+                                <div class="order-overview-label">订单金额</div>
+                                <div class="order-overview-value order-overview-value--amount" th:text="'¥' + ${order.totalAmount}">¥1299.00</div>
+                            </div>
+                            <div class="order-overview-item">
+                                <div class="order-overview-label">下单时间</div>
+                                <div class="order-overview-value" th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd HH:mm:ss')}">2026-05-26 00:06:23</div>
+                            </div>
                         </div>
-                    </form>
+
+                        <div class="order-processing-layout">
+                            <section>
+                                <div class="order-section-title">
+                                    <i class="bi bi-person-lines-fill"></i>
+                                    客户与配送
+                                </div>
+                                <dl class="order-detail-list">
+                                    <div class="order-detail-row">
+                                        <dt>用户账号</dt>
+                                        <dd th:text="${order.user.username}">customer</dd>
+                                    </div>
+                                    <div class="order-detail-row">
+                                        <dt>联系人</dt>
+                                        <dd th:text="${order.contactName}">customer</dd>
+                                    </div>
+                                    <div class="order-detail-row">
+                                        <dt>联系电话</dt>
+                                        <dd th:text="${order.contactPhone}">111</dd>
+                                    </div>
+                                    <div class="order-detail-row">
+                                        <dt>收货地址</dt>
+                                        <dd th:text="${order.deliveryAddress}">111</dd>
+                                    </div>
+                                </dl>
+                            </section>
+
+                            <section class="order-status-panel">
+                                <div class="order-section-title">
+                                    <i class="bi bi-check2-square"></i>
+                                    状态处理
+                                </div>
+                                <div class="status-current-card">
+                                    <div>
+                                        <span class="status-current-label">当前状态</span>
+                                        <span class="status-current-value" th:text="${order.status}">待处理</span>
+                                    </div>
+                                    <span th:switch="${order.status}">
+                                        <span th:case="'待处理'" class="badge bg-warning">待处理</span>
+                                        <span th:case="'已确认'" class="badge bg-info">已确认</span>
+                                        <span th:case="'已发货'" class="badge bg-primary">已发货</span>
+                                        <span th:case="'已送达'" class="badge bg-success">已送达</span>
+                                        <span th:case="'已取消'" class="badge bg-danger">已取消</span>
+                                    </span>
+                                </div>
+                                <form th:action="${ordersPath + '/' + order.id + '/status'}" method="post" class="order-status-form">
+                                    <label class="status-select-label" for="orderStatusSelect">变更为</label>
+                                    <div class="status-action-stack">
+                                        <select id="orderStatusSelect" name="status" class="form-select">
+                                            <option value="待处理" th:selected="${order.status == '待处理'}">待处理</option>
+                                            <option value="已确认" th:selected="${order.status == '已确认'}">已确认</option>
+                                            <option value="已发货" th:selected="${order.status == '已发货'}">已发货</option>
+                                            <option value="已送达" th:selected="${order.status == '已送达'}">已送达</option>
+                                            <option value="已取消" th:selected="${order.status == '已取消'}">已取消</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-check-circle me-1"></i>更新状态
+                                        </button>
+                                    </div>
+                                </form>
+                            </section>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -34,12 +34,20 @@ public class ActivityAdminController {
     public String activityLog(Model model, Authentication authentication) {
         String username = authentication.getName();
         User currentUser = userService.getCurrentUser(username);
-        List<UserActivity> activities = userActivityService.getAllActivities();
+        List<UserActivity> activities = isSales(authentication)
+                ? userActivityService.getCustomerActivities()
+                : userActivityService.getAllActivities();
 
         model.addAttribute("username", username);
         model.addAttribute("userBalance", currentUser.getBalance());
         model.addAttribute("activities", activities);
         workspaceService.addWorkspaceAttributes(model, authentication);
         return workspaceService.resolveView(authentication, "activity-log");
+    }
+
+    private boolean isSales(Authentication authentication) {
+        return authentication != null
+                && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_SALES".equals(authority.getAuthority()));
     }
 }

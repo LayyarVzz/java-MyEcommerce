@@ -6,6 +6,7 @@ import com.example.myecommerce.repository.UserActivityRepository;
 import com.example.myecommerce.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,5 +52,34 @@ class UserActivityServiceTest {
         userActivityService.recordLatestProductBrowseDuration(user, 0);
 
         assertThat(browseActivity.getDurationSeconds()).isEqualTo(1);
+    }
+
+    @Test
+    void getsOnlyCustomerActivitiesForSalesWorkspace() {
+        User customer = user(1L, "customer", "USER");
+        UserActivity customerActivity = activity(customer, "PURCHASE_PRODUCT");
+
+        when(userActivityRepository.findByUserRoleOrderByTimestampDesc("USER"))
+                .thenReturn(List.of(customerActivity));
+
+        List<UserActivity> activities = userActivityService.getCustomerActivities();
+
+        assertThat(activities).containsExactly(customerActivity);
+        verify(userActivityRepository).findByUserRoleOrderByTimestampDesc("USER");
+    }
+
+    private User user(Long id, String username, String role) {
+        User user = new User();
+        user.setId(id);
+        user.setUsername(username);
+        user.setRole(role);
+        return user;
+    }
+
+    private UserActivity activity(User user, String activityType) {
+        UserActivity activity = new UserActivity();
+        activity.setUser(user);
+        activity.setActivityType(activityType);
+        return activity;
     }
 }

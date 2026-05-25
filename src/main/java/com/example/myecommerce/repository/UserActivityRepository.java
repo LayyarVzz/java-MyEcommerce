@@ -13,6 +13,9 @@ public interface UserActivityRepository extends JpaRepository<UserActivity, Long
     
     List<UserActivity> findAllByOrderByTimestampDesc();
 
+    @Query("SELECT ua FROM UserActivity ua WHERE ua.user.role = :role ORDER BY ua.timestamp DESC")
+    List<UserActivity> findByUserRoleOrderByTimestampDesc(@Param("role") String role);
+
     Optional<UserActivity> findFirstByUserIdAndActivityTypeOrderByTimestampDesc(Long userId, String activityType);
     
     @Query("SELECT ua FROM UserActivity ua WHERE ua.user.id = :userId AND ua.activityType = 'VIEW_PRODUCT' ORDER BY ua.timestamp DESC")
