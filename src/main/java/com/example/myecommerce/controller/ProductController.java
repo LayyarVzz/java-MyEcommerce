@@ -2,6 +2,7 @@ package com.example.myecommerce.controller;
 
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.ProductComment;
+import com.example.myecommerce.entity.ProductCommentRating;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.entity.UserActivity;
 import com.example.myecommerce.service.ProductCommentService;
@@ -91,6 +92,7 @@ public class ProductController {
     @GetMapping("/products/{id}")
     public String productDetail(@PathVariable Long id,
                                 @RequestParam(required = false) Long newCommentId,
+                                @RequestParam(required = false) ProductCommentRating rating,
                                 Model model,
                                 Authentication authentication) {
         Product product = productService.getProductById(id);
@@ -108,17 +110,27 @@ public class ProductController {
 
         model.addAttribute("product", product);
         model.addAttribute("relatedProducts", recommendationService.recommendForContext(currentUser, null, product.getCategory(), 4));
-        List<ProductComment> highlightedComments = productCommentService.getHighlightedComments(product, 3);
-        ProductComment newComment = productCommentService.findCommentForProduct(newCommentId, product).orElse(null);
+        List<ProductComment> highlightedComments = productCommentService.getHighlightedComments(product, rating, 3);
+        ProductComment newComment = newCommentId == null
+                ? null
+                : productCommentService.findCommentForProduct(newCommentId, product).orElse(null);
         List<ProductComment> likeScopeComments = new ArrayList<>(highlightedComments);
         if (newComment != null && highlightedComments.stream().noneMatch(comment -> comment.getId().equals(newComment.getId()))) {
             likeScopeComments.add(newComment);
         }
-        long commentCount = productCommentService.countByProduct(product);
+        ProductCommentService.ProductCommentStats commentStats = productCommentService.getStats(product);
+        long visibleCommentCount = switch (rating == null ? ProductCommentRating.GOOD : rating) {
+            case GOOD -> rating == null ? commentStats.total() : commentStats.good();
+            case NEUTRAL -> commentStats.neutral();
+            case BAD -> commentStats.bad();
+        };
         model.addAttribute("highlightedComments", highlightedComments);
         model.addAttribute("newComment", newComment);
-        model.addAttribute("commentCount", commentCount);
-        model.addAttribute("hasMoreComments", commentCount > highlightedComments.size());
+        model.addAttribute("commentCount", commentStats.total());
+        model.addAttribute("commentStats", commentStats);
+        model.addAttribute("ratingOptions", ProductCommentRating.values());
+        model.addAttribute("selectedRating", rating);
+        model.addAttribute("hasMoreComments", visibleCommentCount > highlightedComments.size());
         model.addAttribute("likedCommentIds", productCommentService.findLikedCommentIds(currentUser, likeScopeComments));
         model.addAttribute("username", username);
         model.addAttribute("userBalance", balance);

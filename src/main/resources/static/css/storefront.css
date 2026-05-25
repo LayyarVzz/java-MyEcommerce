@@ -596,6 +596,50 @@ body.auth-page::before {
     align-items: start;
 }
 
+.comment-stream-layout {
+    display: grid;
+    gap: 1rem;
+}
+
+.comment-rating-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    border-bottom: 1px solid var(--store-line);
+    padding-bottom: 0.9rem;
+}
+
+.comment-rating-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    min-height: 42px;
+    color: var(--store-green);
+    background: rgba(255, 250, 241, 0.74);
+    border: 1px solid rgba(23, 59, 44, 0.18);
+    border-radius: 999px;
+    padding: 0.5rem 0.88rem;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.comment-rating-tabs a.active,
+.comment-rating-tabs a:hover {
+    color: var(--store-paper-strong);
+    background: var(--store-green);
+    border-color: var(--store-green);
+}
+
+.comment-rating-tabs span[data-comment-count] {
+    min-width: 1.55rem;
+    text-align: center;
+    color: inherit;
+    background: rgba(180, 106, 60, 0.16);
+    border-radius: 999px;
+    padding: 0.12rem 0.38rem;
+    font-size: 0.78rem;
+}
+
 .comment-composer,
 .comment-card,
 .comment-empty {
@@ -608,6 +652,18 @@ body.auth-page::before {
     position: sticky;
     top: 96px;
     padding: 1rem;
+}
+
+.comment-stream-layout .comment-composer {
+    position: static;
+    padding: 1rem;
+}
+
+.comment-composer-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
 }
 
 .comment-composer-mark {
@@ -625,6 +681,43 @@ body.auth-page::before {
     min-height: 132px;
     resize: vertical;
     line-height: 1.7;
+}
+
+.comment-rating-choice {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 0.85rem;
+}
+
+.comment-rating-choice label {
+    margin: 0;
+}
+
+.comment-rating-choice input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.comment-rating-choice span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 42px;
+    color: var(--store-green);
+    background: rgba(255, 250, 241, 0.72);
+    border: 1px solid rgba(23, 59, 44, 0.18);
+    border-radius: var(--store-radius);
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.comment-rating-choice input:checked + span {
+    color: var(--store-paper-strong);
+    background: linear-gradient(135deg, var(--store-green), var(--store-copper));
+    border-color: transparent;
 }
 
 .comment-note {
@@ -702,6 +795,34 @@ body.auth-page::before {
     white-space: nowrap;
 }
 
+.comment-rating-badge {
+    margin-left: auto;
+    border-radius: 999px;
+    padding: 0.26rem 0.62rem;
+    font-size: 0.75rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.comment-rating-badge.rating-good {
+    color: #12422f;
+    background: rgba(79, 157, 105, 0.18);
+}
+
+.comment-rating-badge.rating-neutral {
+    color: #72521b;
+    background: rgba(180, 138, 58, 0.2);
+}
+
+.comment-rating-badge.rating-bad {
+    color: #8f2f26;
+    background: rgba(214, 75, 61, 0.16);
+}
+
+.comment-rating-badge + .comment-fresh-badge {
+    margin-left: 0;
+}
+
 .comment-content {
     color: var(--store-ink);
     line-height: 1.82;
@@ -770,6 +891,10 @@ body.auth-page::before {
 
 .comment-alert {
     margin-bottom: 1rem;
+}
+
+.comment-alert-placeholder {
+    display: none;
 }
 
 .comment-page-hero {
@@ -864,6 +989,10 @@ body.auth-page::before {
     .comment-actions {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .comment-rating-choice {
+        grid-template-columns: 1fr;
     }
 
     .comment-actions form,

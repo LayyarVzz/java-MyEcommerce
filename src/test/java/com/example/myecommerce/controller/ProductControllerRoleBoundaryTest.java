@@ -2,10 +2,12 @@ package com.example.myecommerce.controller;
 
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.ProductComment;
+import com.example.myecommerce.entity.ProductCommentRating;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.entity.UserActivity;
 import com.example.myecommerce.service.ProductService;
 import com.example.myecommerce.service.ProductCommentService;
+import com.example.myecommerce.service.ProductCommentService.ProductCommentStats;
 import com.example.myecommerce.service.RecommendationService;
 import com.example.myecommerce.service.UserActivityService;
 import com.example.myecommerce.service.UserService;
@@ -107,12 +109,12 @@ class ProductControllerRoleBoundaryTest {
         when(productService.getProductById(7L)).thenReturn(product);
         when(userService.getCurrentUser("customer")).thenReturn(customer);
         when(recommendationService.recommendForContext(customer, null, "家居", 4)).thenReturn(List.of(recommended));
-        when(productCommentService.getHighlightedComments(product, 3)).thenReturn(List.of(comment));
-        when(productCommentService.countByProduct(product)).thenReturn(5L);
+        when(productCommentService.getHighlightedComments(product, null, 3)).thenReturn(List.of(comment));
+        when(productCommentService.getStats(product)).thenReturn(new ProductCommentStats(5L, 4L, 1L, 0L));
         when(productCommentService.findLikedCommentIds(customer, List.of(comment))).thenReturn(List.of(31L));
 
         Model model = new ExtendedModelMap();
-        String view = controller.productDetail(7L, null, model, authentication("customer", "ROLE_USER"));
+        String view = controller.productDetail(7L, null, null, model, authentication("customer", "ROLE_USER"));
 
         assertThat(view).isEqualTo("product-detail");
         assertThat(model.asMap()).containsEntry("product", product);
@@ -122,6 +124,7 @@ class ProductControllerRoleBoundaryTest {
         assertThat(model.asMap()).containsEntry("userBalance", BigDecimal.ZERO);
         assertThat(model.asMap()).containsEntry("highlightedComments", List.of(comment));
         assertThat(model.asMap()).containsEntry("commentCount", 5L);
+        assertThat(model.asMap()).containsEntry("selectedRating", null);
         assertThat(model.asMap()).containsEntry("hasMoreComments", true);
         assertThat(model.asMap()).containsEntry("likedCommentIds", List.of(31L));
     }
@@ -136,17 +139,39 @@ class ProductControllerRoleBoundaryTest {
         when(productService.getProductById(7L)).thenReturn(product);
         when(userService.getCurrentUser("customer")).thenReturn(customer);
         when(recommendationService.recommendForContext(customer, null, "家居", 4)).thenReturn(List.of());
-        when(productCommentService.getHighlightedComments(product, 3)).thenReturn(List.of(highlighted));
-        when(productCommentService.countByProduct(product)).thenReturn(2L);
+        when(productCommentService.getHighlightedComments(product, null, 3)).thenReturn(List.of(highlighted));
+        when(productCommentService.getStats(product)).thenReturn(new ProductCommentStats(2L, 2L, 0L, 0L));
         when(productCommentService.findCommentForProduct(33L, product)).thenReturn(java.util.Optional.of(newComment));
         when(productCommentService.findLikedCommentIds(customer, List.of(highlighted, newComment))).thenReturn(List.of());
 
         Model model = new ExtendedModelMap();
-        String view = controller.productDetail(7L, 33L, model, authentication("customer", "ROLE_USER"));
+        String view = controller.productDetail(7L, 33L, null, model, authentication("customer", "ROLE_USER"));
 
         assertThat(view).isEqualTo("product-detail");
         assertThat(model.asMap()).containsEntry("newComment", newComment);
         verify(productCommentService).findLikedCommentIds(customer, List.of(highlighted, newComment));
+    }
+
+    @Test
+    void productDetailFiltersHighlightedCommentsByRating() {
+        User customer = user(21L, "customer");
+        Product product = product(7L, "台灯", "家居");
+        ProductComment comment = comment(31L, product, customer, 2);
+        comment.setRating(ProductCommentRating.BAD);
+
+        when(productService.getProductById(7L)).thenReturn(product);
+        when(userService.getCurrentUser("customer")).thenReturn(customer);
+        when(recommendationService.recommendForContext(customer, null, "家居", 4)).thenReturn(List.of());
+        when(productCommentService.getHighlightedComments(product, ProductCommentRating.BAD, 3)).thenReturn(List.of(comment));
+        when(productCommentService.getStats(product)).thenReturn(new ProductCommentStats(5L, 3L, 1L, 1L));
+        when(productCommentService.findLikedCommentIds(customer, List.of(comment))).thenReturn(List.of());
+
+        Model model = new ExtendedModelMap();
+        String view = controller.productDetail(7L, null, ProductCommentRating.BAD, model, authentication("customer", "ROLE_USER"));
+
+        assertThat(view).isEqualTo("product-detail");
+        assertThat(model.asMap()).containsEntry("selectedRating", ProductCommentRating.BAD);
+        assertThat(model.asMap()).containsEntry("highlightedComments", List.of(comment));
     }
 
     private User user(Long id, String username) {

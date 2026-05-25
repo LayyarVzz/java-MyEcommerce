@@ -15,12 +15,18 @@ class ProductCommentTemplateTest {
         String html = Files.readString(Path.of("src/main/resources/templates/product-detail.html"));
 
         assertThat(html).contains("id=\"comments\"");
-        assertThat(html).contains("th:if=\"${newComment != null}\"");
+        assertThat(html).contains("comment-rating-tabs");
+        assertThat(html).contains("data-comment-form");
+        assertThat(html).contains("data-comments-list");
+        assertThat(html).contains("th:data-selected-rating");
+        assertThat(html).contains("name=\"rating\"");
         assertThat(html).contains("th:each=\"comment : ${highlightedComments}\"");
         assertThat(html).contains("th:action=\"@{/products/{productId}/comments(productId=${product.id})}\"");
         assertThat(html).contains("name=\"content\"");
         assertThat(html).contains("th:action=\"@{/products/{productId}/comments/{commentId}/like");
-        assertThat(html).contains("th:href=\"@{/products/{productId}/comments(productId=${product.id})}\"");
+        assertThat(html).contains("th:href=\"@{/products/{productId}/comments(productId=${product.id}, rating=${selectedRating})}\"");
+        assertThat(html).contains("commentSuccess != null or commentError != null");
+        assertThat(html).contains("/js/product-comments.js");
         assertThat(html).contains("查看更多");
     }
 
@@ -29,8 +35,14 @@ class ProductCommentTemplateTest {
         String html = Files.readString(Path.of("src/main/resources/templates/product-comments.html"));
 
         assertThat(html).contains("th:each=\"comment : ${comments}\"");
+        assertThat(html).contains("comment-rating-tabs");
+        assertThat(html).contains("name=\"rating\"");
+        assertThat(html).contains("data-comment-form");
+        assertThat(html).contains("th:data-selected-rating");
         assertThat(html).contains("th:action=\"@{/products/{productId}/comments(productId=${product.id})}\"");
         assertThat(html).contains("th:action=\"@{/products/{productId}/comments/{commentId}/like");
+        assertThat(html).contains("commentSuccess != null or commentError != null");
         assertThat(html).contains("name=\"returnTo\" value=\"all\"");
+        assertThat(html).contains("/js/product-comments.js");
     }
 }

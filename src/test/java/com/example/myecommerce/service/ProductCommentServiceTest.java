@@ -3,7 +3,9 @@ package com.example.myecommerce.service;
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.ProductComment;
 import com.example.myecommerce.entity.ProductCommentLike;
+import com.example.myecommerce.entity.ProductCommentRating;
 import com.example.myecommerce.entity.User;
+import com.example.myecommerce.service.ProductCommentService.ProductCommentStats;
 import com.example.myecommerce.repository.ProductCommentLikeRepository;
 import com.example.myecommerce.repository.ProductCommentRepository;
 import com.example.myecommerce.repository.ProductRepository;
@@ -66,6 +68,23 @@ class ProductCommentServiceTest {
     }
 
     @Test
+    void filteredHighlightedCommentsUseSelectedRating() {
+        Product product = product(7L);
+        ProductComment comment = comment(1L, product, user(2L, "buyer"), 12);
+        comment.setRating(ProductCommentRating.GOOD);
+        PageRequest page = PageRequest.of(0, 3, Sort.by(
+                Sort.Order.desc("likeCount"),
+                Sort.Order.desc("createdAt")
+        ));
+
+        when(commentRepository.findByProductAndRating(product, ProductCommentRating.GOOD, page)).thenReturn(List.of(comment));
+
+        List<ProductComment> comments = service.getHighlightedComments(product, ProductCommentRating.GOOD, 3);
+
+        assertThat(comments).containsExactly(comment);
+    }
+
+    @Test
     void addCommentTrimsContentAndAssociatesProductAndUser() {
         Product product = product(7L);
         User user = user(2L, "buyer");
@@ -74,15 +93,77 @@ class ProductCommentServiceTest {
         when(productRepository.findById(7L)).thenReturn(Optional.of(product));
         when(userRepository.findByUsername("buyer")).thenReturn(Optional.of(user));
 
-        service.addComment(7L, "buyer", "  包装很用心，实物质感也不错。  ");
+        service.addComment(7L, "buyer", "  包装很用心，实物质感也不错。  ", ProductCommentRating.GOOD);
 
         verify(commentRepository).save(captor.capture());
         ProductComment saved = captor.getValue();
         assertThat(saved.getProduct()).isEqualTo(product);
         assertThat(saved.getUser()).isEqualTo(user);
         assertThat(saved.getContent()).isEqualTo("包装很用心，实物质感也不错。");
+        assertThat(saved.getRating()).isEqualTo(ProductCommentRating.GOOD);
         assertThat(saved.getLikeCount()).isZero();
         assertThat(saved.getCreatedAt()).isNotNull();
+    }
+
+    @Test
+    void addCommentDefaultsMissingRatingToGood() {
+        Product product = product(7L);
+        User user = user(2L, "buyer");
+        ArgumentCaptor<ProductComment> captor = ArgumentCaptor.forClass(ProductComment.class);
+
+        when(productRepository.findById(7L)).thenReturn(Optional.of(product));
+        when(userRepository.findByUsername("buyer")).thenReturn(Optional.of(user));
+
+        service.addComment(7L, "buyer", "不错", null);
+
+        verify(commentRepository).save(captor.capture());
+        assertThat(captor.getValue().getRating()).isEqualTo(ProductCommentRating.GOOD);
+    }
+
+    @Test
+    void commentStatsCountsAllRatingBuckets() {
+        Product product = product(7L);
+        when(commentRepository.countByProduct(product)).thenReturn(10L);
+        when(commentRepository.countByProductAndRating(product, ProductCommentRating.GOOD)).thenReturn(6L);
+        when(commentRepository.countByProductAndRating(product, ProductCommentRating.NEUTRAL)).thenReturn(3L);
+        when(commentRepository.countByProductAndRating(product, ProductCommentRating.BAD)).thenReturn(1L);
+
+        ProductCommentStats stats = service.getStats(product);
+
+        assertThat(stats.total()).isEqualTo(10L);
+        assertThat(stats.good()).isEqualTo(6L);
+        assertThat(stats.neutral()).isEqualTo(3L);
+        assertThat(stats.bad()).isEqualTo(1L);
+    }
+
+    @Test
+    void commentStatsCountsLegacyUnratedCommentsAsGood() {
+        Product product = product(7L);
+        when(commentRepository.countByProduct(product)).thenReturn(10L);
+        when(commentRepository.countByProductAndRating(product, ProductCommentRating.GOOD)).thenReturn(6L);
+        when(commentRepository.countByProductAndRating(product, ProductCommentRating.NEUTRAL)).thenReturn(1L);
+        when(commentRepository.countByProductAndRating(product, ProductCommentRating.BAD)).thenReturn(1L);
+
+        ProductCommentStats stats = service.getStats(product);
+
+        assertThat(stats.total()).isEqualTo(10L);
+        assertThat(stats.good()).isEqualTo(8L);
+        assertThat(stats.neutral()).isEqualTo(1L);
+        assertThat(stats.bad()).isEqualTo(1L);
+    }
+
+    @Test
+    void allCommentsCanBeFilteredByRating() {
+        Product product = product(7L);
+        ProductComment comment = comment(11L, product, user(2L, "buyer"), 0);
+        comment.setRating(ProductCommentRating.BAD);
+
+        when(commentRepository.findByProductAndRatingOrderByLikeCountDescCreatedAtDesc(product, ProductCommentRating.BAD))
+                .thenReturn(List.of(comment));
+
+        List<ProductComment> comments = service.getAllComments(product, ProductCommentRating.BAD);
+
+        assertThat(comments).containsExactly(comment);
     }
 
     @Test
@@ -185,6 +266,7 @@ class ProductCommentServiceTest {
         comment.setUser(user);
         comment.setLikeCount(likeCount);
         comment.setContent("评论内容");
+        comment.setRating(ProductCommentRating.GOOD);
         return comment;
     }
 }

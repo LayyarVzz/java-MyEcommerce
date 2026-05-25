@@ -3,6 +3,7 @@ package com.example.myecommerce.service;
 import com.example.myecommerce.entity.Product;
 import com.example.myecommerce.entity.ProductComment;
 import com.example.myecommerce.entity.ProductCommentLike;
+import com.example.myecommerce.entity.ProductCommentRating;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.repository.ProductCommentLikeRepository;
 import com.example.myecommerce.repository.ProductCommentRepository;
@@ -22,6 +23,9 @@ import java.util.Optional;
 public class ProductCommentService {
     private static final int MAX_CONTENT_LENGTH = 500;
 
+    public record ProductCommentStats(long total, long good, long neutral, long bad) {
+    }
+
     private final ProductCommentRepository commentRepository;
     private final ProductCommentLikeRepository likeRepository;
     private final ProductRepository productRepository;
@@ -39,19 +43,57 @@ public class ProductCommentService {
 
     @Transactional(readOnly = true)
     public List<ProductComment> getHighlightedComments(Product product, int limit) {
+        return getHighlightedComments(product, null, limit);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductComment> getHighlightedComments(Product product, ProductCommentRating rating, int limit) {
         int safeLimit = Math.max(1, limit);
         PageRequest page = PageRequest.of(0, safeLimit, commentSort());
+        if (rating != null) {
+            return commentRepository.findByProductAndRating(product, rating, page);
+        }
         return commentRepository.findByProduct(product, page);
     }
 
     @Transactional(readOnly = true)
     public List<ProductComment> getAllComments(Product product) {
+        return getAllComments(product, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductComment> getAllComments(Product product, ProductCommentRating rating) {
+        if (rating != null) {
+            return commentRepository.findByProductAndRatingOrderByLikeCountDescCreatedAtDesc(product, rating);
+        }
         return commentRepository.findByProductOrderByLikeCountDescCreatedAtDesc(product);
     }
 
     @Transactional(readOnly = true)
     public long countByProduct(Product product) {
         return commentRepository.countByProduct(product);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductCommentStats getStats(Product product) {
+        long total = commentRepository.countByProduct(product);
+        long explicitGood = commentRepository.countByProductAndRating(product, ProductCommentRating.GOOD);
+        long neutral = commentRepository.countByProductAndRating(product, ProductCommentRating.NEUTRAL);
+        long bad = commentRepository.countByProductAndRating(product, ProductCommentRating.BAD);
+        long goodWithLegacyUnrated = Math.max(explicitGood, Math.max(0, total - neutral - bad));
+        return new ProductCommentStats(
+                total,
+                goodWithLegacyUnrated,
+                neutral,
+                bad
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ProductCommentStats getStatsByProductId(Long productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("商品不存在"));
+        return getStats(product);
     }
 
     @Transactional(readOnly = true)
@@ -66,6 +108,11 @@ public class ProductCommentService {
 
     @Transactional
     public ProductComment addComment(Long productId, String username, String content) {
+        return addComment(productId, username, content, ProductCommentRating.GOOD);
+    }
+
+    @Transactional
+    public ProductComment addComment(Long productId, String username, String content, ProductCommentRating rating) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("商品不存在"));
         User user = findUser(username);
@@ -75,6 +122,7 @@ public class ProductCommentService {
         comment.setProduct(product);
         comment.setUser(user);
         comment.setContent(normalizedContent);
+        comment.setRating(rating != null ? rating : ProductCommentRating.GOOD);
         comment.setLikeCount(0);
         comment.setCreatedAt(LocalDateTime.now());
         return commentRepository.save(comment);
