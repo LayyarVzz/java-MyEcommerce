@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/navbar :: head}"></th:block>
+    <title th:text="${product.name + ' - 全部评论'}">全部评论 - 电商网站</title>
+</head>
+<body class="storefront-page product-comments-page">
+
+<th:block th:replace="~{fragments/navbar :: navbar(activePage='products')}"></th:block>
+
+<main class="container product-detail-shell">
+    <nav class="mb-4" aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a class="product-link" th:href="@{/products}">商品列表</a></li>
+            <li class="breadcrumb-item">
+                <a class="product-link" th:href="@{/products/{id}(id=${product.id})}" th:text="${product.name}">商品名称</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">全部评论</li>
+        </ol>
+    </nav>
+
+    <section class="comment-page-hero">
+        <div>
+            <span class="comment-kicker"><i class="bi bi-chat-heart me-1"></i>全部评论</span>
+            <h1 th:text="${product.name}">商品名称</h1>
+            <p class="mb-0">按高赞优先排列，集中查看所有买家的真实反馈。</p>
+        </div>
+        <div class="comment-count-badge">
+            <strong th:text="${commentCount}">0</strong>
+            <span>条评论</span>
+        </div>
+    </section>
+
+    <section id="comments" class="comment-section comment-section-full">
+        <div th:if="${commentSuccess}" class="alert alert-success comment-alert" th:text="${commentSuccess}">评论已发布</div>
+        <div th:if="${commentError}" class="alert alert-danger comment-alert" th:text="${commentError}">评论提交失败</div>
+
+        <div class="comment-layout">
+            <aside class="comment-composer">
+                <div class="comment-composer-mark">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <h2 class="h5 mb-2">补充你的看法</h2>
+                <p class="text-muted small mb-3">评论会出现在全部评论中，高赞内容也会回到详情页展示。</p>
+
+                <form th:if="${#authorization.expression('hasRole(''USER'')')}"
+                      th:action="@{/products/{productId}/comments(productId=${product.id})}"
+                      method="post"
+                      class="comment-form">
+                    <input type="hidden" name="returnTo" value="all">
+                    <textarea class="form-control"
+                              name="content"
+                              rows="5"
+                              maxlength="500"
+                              required
+                              placeholder="继续分享你的使用体验..."
+                              th:text="${commentDraft ?: ''}"></textarea>
+                    <div class="d-flex align-items-center justify-content-between gap-3 mt-3">
+                        <span class="small text-muted">最多 500 字</span>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>发布评论
+                        </button>
+                    </div>
+                </form>
+
+                <a th:if="${#authorization.expression('isAnonymous()')}" href="/login" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>登录后评论
+                </a>
+
+                <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-outline-secondary w-100 mt-3">
+                    <i class="bi bi-arrow-left me-1"></i>返回商品详情
+                </a>
+            </aside>
+
+            <div class="comment-preview-list all-comments-list">
+                <div th:if="${comments == null or #lists.isEmpty(comments)}" class="comment-empty">
+                    <i class="bi bi-chat-square-text"></i>
+                    <strong>还没有评论</strong>
+                    <span>你的第一条体验会成为这里的开始。</span>
+                </div>
+
+                <article th:each="comment : ${comments}" class="comment-card">
+                    <div class="comment-card-top">
+                        <div class="comment-avatar" th:text="${#strings.substring(comment.user.username, 0, 1)}">U</div>
+                        <div>
+                            <strong th:text="${comment.user.fullName ?: comment.user.username}">买家昵称</strong>
+                            <time th:if="${comment.createdAt != null}"
+                                  th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">2026-05-25 12:00</time>
+                        </div>
+                    </div>
+                    <p class="comment-content" th:text="${comment.content}">商品评论内容</p>
+                    <div class="comment-actions">
+                        <span class="comment-like-count">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                            <span th:text="${comment.likeCount}">0</span>
+                        </span>
+                        <form th:if="${#authorization.expression('hasRole(''USER'')')}"
+                              th:action="@{/products/{productId}/comments/{commentId}/like(productId=${product.id}, commentId=${comment.id})}"
+                              method="post">
+                            <input type="hidden" name="returnTo" value="all">
+                            <button type="submit"
+                                    class="btn btn-outline-primary btn-sm comment-like-button"
+                                    th:classappend="${#lists.contains(likedCommentIds, comment.id)} ? ' liked' : ''"
+                                    th:disabled="${#lists.contains(likedCommentIds, comment.id) or comment.user.username == username}">
+                                <i class="bi bi-hand-thumbs-up me-1"></i>
+                                <span th:if="${comment.user.username == username}">自己的评论</span>
+                                <span th:if="${comment.user.username != username and #lists.contains(likedCommentIds, comment.id)}">已点赞</span>
+                                <span th:if="${comment.user.username != username and !#lists.contains(likedCommentIds, comment.id)}">点赞</span>
+                            </button>
+                        </form>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

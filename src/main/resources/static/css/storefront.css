@@ -535,6 +535,266 @@ body.auth-page::before {
     margin-top: 3rem;
 }
 
+.comment-section {
+    margin-top: 3rem;
+    background:
+        linear-gradient(135deg, rgba(49, 93, 118, 0.1), rgba(255, 250, 241, 0.94)),
+        rgba(255, 250, 241, 0.92);
+    border: 1px solid var(--store-line);
+    border-radius: var(--store-radius);
+    box-shadow: var(--store-shadow);
+    padding: clamp(1.1rem, 3vw, 1.6rem);
+}
+
+.comment-section-header,
+.comment-page-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.2rem;
+}
+
+.comment-section-header {
+    margin-bottom: 1.25rem;
+}
+
+.comment-kicker {
+    display: inline-flex;
+    align-items: center;
+    color: var(--store-copper);
+    font-size: 0.82rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.comment-count-badge {
+    min-width: 104px;
+    border: 1px solid rgba(23, 59, 44, 0.16);
+    border-radius: var(--store-radius);
+    background: rgba(255, 250, 241, 0.78);
+    padding: 0.72rem 0.9rem;
+    text-align: center;
+}
+
+.comment-count-badge strong {
+    display: block;
+    color: var(--store-green);
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.comment-count-badge span {
+    color: var(--store-muted);
+    font-size: 0.78rem;
+}
+
+.comment-layout {
+    display: grid;
+    grid-template-columns: minmax(250px, 0.36fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.comment-composer,
+.comment-card,
+.comment-empty {
+    border: 1px solid var(--store-line);
+    border-radius: var(--store-radius);
+    background: rgba(255, 250, 241, 0.88);
+}
+
+.comment-composer {
+    position: sticky;
+    top: 96px;
+    padding: 1rem;
+}
+
+.comment-composer-mark {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: var(--store-paper-strong);
+    background: linear-gradient(135deg, var(--store-green), var(--store-blue));
+    border-radius: var(--store-radius);
+    margin-bottom: 0.8rem;
+}
+
+.comment-form textarea {
+    min-height: 132px;
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.comment-note {
+    color: var(--store-muted);
+    border: 1px dashed rgba(23, 59, 44, 0.22);
+    border-radius: var(--store-radius);
+    padding: 0.85rem;
+    font-size: 0.9rem;
+}
+
+.comment-preview-list {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.comment-card {
+    padding: 1rem;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.comment-card:hover {
+    border-color: rgba(180, 106, 60, 0.3);
+    box-shadow: 0 14px 32px rgba(23, 35, 29, 0.1);
+    transform: translateY(-2px);
+}
+
+.comment-card-top,
+.comment-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+}
+
+.comment-card-top {
+    justify-content: flex-start;
+    margin-bottom: 0.85rem;
+}
+
+.comment-avatar {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    color: var(--store-paper-strong);
+    background:
+        linear-gradient(135deg, rgba(23, 59, 44, 0.96), rgba(180, 106, 60, 0.92));
+    border-radius: 50%;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.comment-card time {
+    display: block;
+    color: var(--store-muted);
+    font-size: 0.78rem;
+    margin-top: 0.12rem;
+}
+
+.comment-content {
+    color: var(--store-ink);
+    line-height: 1.82;
+    margin-bottom: 1rem;
+    word-break: break-word;
+}
+
+.comment-like-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    color: var(--store-copper);
+    font-weight: 800;
+}
+
+.comment-like-button {
+    min-width: 92px;
+}
+
+.comment-like-button.liked,
+.comment-like-button:disabled {
+    color: var(--store-muted) !important;
+    background: rgba(23, 35, 29, 0.06) !important;
+    border-color: rgba(23, 35, 29, 0.1) !important;
+    opacity: 1;
+}
+
+.comment-more-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 48px;
+    color: var(--store-green);
+    background: rgba(255, 250, 241, 0.78);
+    border: 1px dashed rgba(23, 59, 44, 0.22);
+    border-radius: var(--store-radius);
+    font-weight: 900;
+    text-decoration: none;
+}
+
+.comment-more-link:hover {
+    color: var(--store-paper-strong);
+    background: var(--store-green);
+}
+
+.comment-empty {
+    min-height: 178px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 0.4rem;
+    color: var(--store-muted);
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.comment-empty i {
+    color: var(--store-copper);
+    font-size: 1.7rem;
+}
+
+.comment-empty strong {
+    color: var(--store-ink);
+}
+
+.comment-alert {
+    margin-bottom: 1rem;
+}
+
+.comment-page-hero {
+    background:
+        linear-gradient(135deg, rgba(23, 59, 44, 0.97), rgba(49, 93, 118, 0.9)),
+        var(--store-green);
+    color: var(--store-paper-strong);
+    border-bottom: 4px solid var(--store-copper);
+    border-radius: var(--store-radius);
+    box-shadow: var(--store-shadow);
+    padding: clamp(1.4rem, 4vw, 2.2rem);
+}
+
+.comment-page-hero h1 {
+    color: var(--store-paper-strong);
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    line-height: 1.08;
+    margin: 0.25rem 0 0.6rem;
+}
+
+.comment-page-hero p {
+    color: rgba(255, 250, 241, 0.78);
+}
+
+.comment-page-hero .comment-count-badge {
+    background: rgba(255, 250, 241, 0.12);
+    border-color: rgba(255, 250, 241, 0.22);
+}
+
+.comment-page-hero .comment-count-badge strong,
+.comment-page-hero .comment-count-badge span {
+    color: var(--store-paper-strong);
+}
+
+.comment-section-full {
+    margin-top: 1.2rem;
+}
+
+.all-comments-list {
+    gap: 1rem;
+}
+
 .product-image {
     border: 1px solid var(--store-line);
     background: var(--store-paper-strong);
@@ -544,6 +804,14 @@ body.auth-page::before {
 @media (max-width: 991.98px) {
     .product-detail-hero {
         grid-template-columns: 1fr;
+    }
+
+    .comment-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .comment-composer {
+        position: static;
     }
 
     .product-gallery {
@@ -572,5 +840,17 @@ body.auth-page::before {
 
     .detail-spec-grid {
         grid-template-columns: 1fr;
+    }
+
+    .comment-section-header,
+    .comment-page-hero,
+    .comment-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .comment-actions form,
+    .comment-actions button {
+        width: 100%;
     }
 }

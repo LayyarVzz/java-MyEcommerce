@@ -10,3 +10,6 @@ upload/
 !src/main/resources/static/upload/**
 
 src/main/.claude/
+
+# Local private Spring Boot overrides. Use with SPRING_PROFILES_ACTIVE=local.
+src/main/resources/application-local.yaml

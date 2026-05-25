@@ -1,8 +1,10 @@
 package com.example.myecommerce.controller;
 
 import com.example.myecommerce.entity.Product;
+import com.example.myecommerce.entity.ProductComment;
 import com.example.myecommerce.entity.User;
 import com.example.myecommerce.entity.UserActivity;
+import com.example.myecommerce.service.ProductCommentService;
 import com.example.myecommerce.service.ProductService;
 import com.example.myecommerce.service.RecommendationService;
 import com.example.myecommerce.service.UserService;
@@ -27,15 +29,18 @@ public class ProductController {
     private final UserService userService;
     private final UserActivityService userActivityService;
     private final RecommendationService recommendationService;
+    private final ProductCommentService productCommentService;
 
     public ProductController(ProductService productService,
                              UserService userService,
                              UserActivityService userActivityService,
-                             RecommendationService recommendationService) {
+                             RecommendationService recommendationService,
+                             ProductCommentService productCommentService) {
         this.productService = productService;
         this.userService = userService;
         this.userActivityService = userActivityService;
         this.recommendationService = recommendationService;
+        this.productCommentService = productCommentService;
     }
 
     // 商品列表页
@@ -101,6 +106,12 @@ public class ProductController {
 
         model.addAttribute("product", product);
         model.addAttribute("relatedProducts", recommendationService.recommendForContext(currentUser, null, product.getCategory(), 4));
+        List<ProductComment> highlightedComments = productCommentService.getHighlightedComments(product, 3);
+        long commentCount = productCommentService.countByProduct(product);
+        model.addAttribute("highlightedComments", highlightedComments);
+        model.addAttribute("commentCount", commentCount);
+        model.addAttribute("hasMoreComments", commentCount > highlightedComments.size());
+        model.addAttribute("likedCommentIds", productCommentService.findLikedCommentIds(currentUser, highlightedComments));
         model.addAttribute("username", username);
         model.addAttribute("userBalance", balance);
         model.addAttribute("loggedIn", loggedIn);

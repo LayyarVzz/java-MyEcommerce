@@ -78,6 +78,108 @@
         </article>
     </section>
 
+    <section id="comments" class="comment-section">
+        <div class="comment-section-header">
+            <div>
+                <span class="comment-kicker"><i class="bi bi-chat-heart me-1"></i>用户评论</span>
+                <h2 class="h4 mb-1">高赞买家反馈</h2>
+                <p class="text-muted mb-0">先看被更多人认可的真实体验</p>
+            </div>
+            <div class="comment-count-badge">
+                <strong th:text="${commentCount}">0</strong>
+                <span>条评论</span>
+            </div>
+        </div>
+
+        <div th:if="${commentSuccess}" class="alert alert-success comment-alert" th:text="${commentSuccess}">评论已发布</div>
+        <div th:if="${commentError}" class="alert alert-danger comment-alert" th:text="${commentError}">评论提交失败</div>
+
+        <div class="comment-layout">
+            <aside class="comment-composer">
+                <div class="comment-composer-mark">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <h3 class="h5 mb-2">留下你的体验</h3>
+                <p class="text-muted small mb-3">说说实物、包装、使用感受，帮助后来的人更快做决定。</p>
+
+                <form th:if="${#authorization.expression('hasRole(''USER'')')}"
+                      th:action="@{/products/{productId}/comments(productId=${product.id})}"
+                      method="post"
+                      class="comment-form">
+                    <input type="hidden" name="returnTo" value="detail">
+                    <textarea class="form-control"
+                              name="content"
+                              rows="5"
+                              maxlength="500"
+                              required
+                              placeholder="写下你对这件商品的真实感受..."
+                              th:text="${commentDraft ?: ''}"></textarea>
+                    <div class="d-flex align-items-center justify-content-between gap-3 mt-3">
+                        <span class="small text-muted">最多 500 字</span>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send me-1"></i>发布评论
+                        </button>
+                    </div>
+                </form>
+
+                <a th:if="${#authorization.expression('isAnonymous()')}" href="/login" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>登录后评论
+                </a>
+
+                <div th:if="${#authorization.expression('isAuthenticated() and !hasRole(''USER'')')}" class="comment-note">
+                    当前角色可查看评论，普通用户账号可发布评论和点赞。
+                </div>
+            </aside>
+
+            <div class="comment-preview-list">
+                <div th:if="${highlightedComments == null or #lists.isEmpty(highlightedComments)}" class="comment-empty">
+                    <i class="bi bi-chat-square-text"></i>
+                    <strong>还没有评论</strong>
+                    <span>成为第一个分享体验的人。</span>
+                </div>
+
+                <article th:each="comment : ${highlightedComments}" class="comment-card">
+                    <div class="comment-card-top">
+                        <div class="comment-avatar" th:text="${#strings.substring(comment.user.username, 0, 1)}">U</div>
+                        <div>
+                            <strong th:text="${comment.user.fullName ?: comment.user.username}">买家昵称</strong>
+                            <time th:if="${comment.createdAt != null}"
+                                  th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">2026-05-25 12:00</time>
+                        </div>
+                    </div>
+                    <p class="comment-content" th:text="${comment.content}">商品评论内容</p>
+                    <div class="comment-actions">
+                        <span class="comment-like-count">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                            <span th:text="${comment.likeCount}">0</span>
+                        </span>
+                        <form th:if="${#authorization.expression('hasRole(''USER'')')}"
+                              th:action="@{/products/{productId}/comments/{commentId}/like(productId=${product.id}, commentId=${comment.id})}"
+                              method="post">
+                            <input type="hidden" name="returnTo" value="detail">
+                            <button type="submit"
+                                    class="btn btn-outline-primary btn-sm comment-like-button"
+                                    th:classappend="${#lists.contains(likedCommentIds, comment.id)} ? ' liked' : ''"
+                                    th:disabled="${#lists.contains(likedCommentIds, comment.id) or comment.user.username == username}">
+                                <i class="bi bi-hand-thumbs-up me-1"></i>
+                                <span th:if="${comment.user.username == username}">自己的评论</span>
+                                <span th:if="${comment.user.username != username and #lists.contains(likedCommentIds, comment.id)}">已点赞</span>
+                                <span th:if="${comment.user.username != username and !#lists.contains(likedCommentIds, comment.id)}">点赞</span>
+                            </button>
+                        </form>
+                    </div>
+                </article>
+
+                <a th:if="${hasMoreComments}"
+                   th:href="@{/products/{productId}/comments(productId=${product.id})}"
+                   class="comment-more-link">
+                    查看更多
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <section class="related-section" th:if="${relatedProducts != null and !#lists.isEmpty(relatedProducts)}">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <div>
