@@ -40,6 +40,23 @@
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        .insight-card {
+            border: 1px solid rgba(102, 126, 234, 0.12);
+            border-radius: 12px;
+            padding: 1rem;
+            height: 100%;
+            background: #ffffff;
+        }
+        .insight-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-bottom: 0.35rem;
+        }
+        .insight-value {
+            color: #212529;
+            font-weight: 700;
+            margin: 0;
+        }
         .table {
             margin-bottom: 0;
             border-radius: 15px;
@@ -135,6 +152,29 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3 g-3">
+        <div class="col-md-4">
+            <div class="insight-card">
+                <div class="insight-label">趋势评估</div>
+                <p class="insight-value" th:text="${reportData.trendAssessment}">基本平稳</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="insight-card">
+                <div class="insight-label">预测依据</div>
+                <p class="mb-0 text-muted" th:text="${reportData.forecastDescription}">基于最近销售表现加权预测。</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="insight-card">
+                <div class="insight-label">异常等级</div>
+                <span class="badge rounded-pill"
+                      th:text="${reportData.anomalyLevelLabel}"
+                      th:classappend="${reportData.anomalyLevel == 'HIGH'} ? ' bg-danger' : (${reportData.anomalyLevel == 'MEDIUM'} ? ' bg-warning text-dark' : ' bg-success')">正常</span>
             </div>
         </div>
     </div>
@@ -277,6 +317,7 @@
                     <h5>周趋势</h5>
                 </div>
                 <div class="card-body">
+                    <canvas id="weeklyTrendChart" height="120" class="mb-3"></canvas>
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -305,6 +346,7 @@
                     <h5>月趋势</h5>
                 </div>
                 <div class="card-body">
+                    <canvas id="monthlyTrendChart" height="120" class="mb-3"></canvas>
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -368,17 +410,25 @@
 <script th:inline="javascript">
     const trendLabels = /*[[${reportData.dailyTrendLabels}]]*/ [];
     const trendRevenue = /*[[${reportData.dailyTrendRevenue}]]*/ [];
-    const ctx = document.getElementById('dailyTrendChart');
-    if (ctx && trendLabels.length > 0) {
+    const weeklyTrendLabels = /*[[${reportData.weeklyTrendLabels}]]*/ [];
+    const weeklyTrendRevenue = /*[[${reportData.weeklyTrendRevenue}]]*/ [];
+    const monthlyTrendLabels = /*[[${reportData.monthlyTrendLabels}]]*/ [];
+    const monthlyTrendRevenue = /*[[${reportData.monthlyTrendRevenue}]]*/ [];
+
+    function renderTrendChart(elementId, labels, revenue, color) {
+        const ctx = document.getElementById(elementId);
+        if (!ctx || labels.length === 0) {
+            return;
+        }
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: trendLabels,
+                labels: labels,
                 datasets: [{
                     label: '销售额',
-                    data: trendRevenue,
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.15)',
+                    data: revenue,
+                    borderColor: color,
+                    backgroundColor: color.replace('1)', '0.15)'),
                     tension: 0.35,
                     fill: true
                 }]
@@ -398,6 +448,9 @@
             }
         });
     }
+    renderTrendChart('dailyTrendChart', trendLabels, trendRevenue, 'rgba(102, 126, 234, 1)');
+    renderTrendChart('weeklyTrendChart', weeklyTrendLabels, weeklyTrendRevenue, 'rgba(25, 135, 84, 1)');
+    renderTrendChart('monthlyTrendChart', monthlyTrendLabels, monthlyTrendRevenue, 'rgba(220, 53, 69, 1)');
 </script>
 </body>
 </html>
