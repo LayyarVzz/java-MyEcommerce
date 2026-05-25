@@ -36,16 +36,23 @@ public class ProductCommentController {
 
     @GetMapping("/products/{productId}/comments")
     public String productComments(@PathVariable Long productId,
+                                  @RequestParam(required = false) Long newCommentId,
                                   Model model,
                                   Authentication authentication) {
         Product product = productService.getProductById(productId);
         User currentUser = currentUser(authentication);
         List<ProductComment> comments = productCommentService.getAllComments(product);
+        ProductComment newComment = productCommentService.findCommentForProduct(newCommentId, product).orElse(null);
+        List<ProductComment> likeScopeComments = new java.util.ArrayList<>(comments);
+        if (newComment != null && comments.stream().noneMatch(comment -> comment.getId().equals(newComment.getId()))) {
+            likeScopeComments.add(newComment);
+        }
 
         model.addAttribute("product", product);
         model.addAttribute("comments", comments);
+        model.addAttribute("newComment", newComment);
         model.addAttribute("commentCount", productCommentService.countByProduct(product));
-        model.addAttribute("likedCommentIds", productCommentService.findLikedCommentIds(currentUser, comments));
+        model.addAttribute("likedCommentIds", productCommentService.findLikedCommentIds(currentUser, likeScopeComments));
         model.addAttribute("username", currentUser != null ? currentUser.getUsername() : "游客");
         model.addAttribute("userBalance", currentUser != null ? currentUser.getBalance() : BigDecimal.ZERO);
         model.addAttribute("loggedIn", currentUser != null);
@@ -60,8 +67,12 @@ public class ProductCommentController {
                              Authentication authentication,
                              RedirectAttributes redirectAttributes) {
         try {
-            productCommentService.addComment(productId, authentication.getName(), content);
+            ProductComment comment = productCommentService.addComment(productId, authentication.getName(), content);
             redirectAttributes.addFlashAttribute("commentSuccess", "评论已发布，感谢你的真实反馈。");
+            if ("all".equals(returnTo)) {
+                return "redirect:/products/" + productId + "/comments?newCommentId=" + comment.getId() + "#comments";
+            }
+            return "redirect:/products/" + productId + "?newCommentId=" + comment.getId() + "#comments";
         } catch (IllegalArgumentException ex) {
             redirectAttributes.addFlashAttribute("commentError", ex.getMessage());
             redirectAttributes.addFlashAttribute("commentDraft", content);

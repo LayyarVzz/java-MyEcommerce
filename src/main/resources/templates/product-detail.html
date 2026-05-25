@@ -132,13 +132,35 @@
             </aside>
 
             <div class="comment-preview-list">
-                <div th:if="${highlightedComments == null or #lists.isEmpty(highlightedComments)}" class="comment-empty">
+                <article th:if="${newComment != null}" class="comment-card comment-card-new">
+                    <div class="comment-card-top">
+                        <div class="comment-avatar" th:text="${#strings.substring(newComment.user.username, 0, 1)}">U</div>
+                        <div>
+                            <strong th:text="${newComment.user.fullName ?: newComment.user.username}">买家昵称</strong>
+                            <time th:if="${newComment.createdAt != null}"
+                                  th:text="${#temporals.format(newComment.createdAt, 'yyyy-MM-dd HH:mm')}">2026-05-25 12:00</time>
+                        </div>
+                        <span class="comment-fresh-badge">刚刚发布</span>
+                    </div>
+                    <p class="comment-content" th:text="${newComment.content}">刚刚发布的评论内容</p>
+                    <div class="comment-actions">
+                        <span class="comment-like-count">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                            <span th:text="${newComment.likeCount}">0</span>
+                        </span>
+                        <span class="small text-muted">你的评论已展示在当前页面</span>
+                    </div>
+                </article>
+
+                <div th:if="${newComment == null and (highlightedComments == null or #lists.isEmpty(highlightedComments))}" class="comment-empty">
                     <i class="bi bi-chat-square-text"></i>
                     <strong>还没有评论</strong>
                     <span>成为第一个分享体验的人。</span>
                 </div>
 
-                <article th:each="comment : ${highlightedComments}" class="comment-card">
+                <article th:each="comment : ${highlightedComments}"
+                         th:if="${newComment == null or comment.id != newComment.id}"
+                         class="comment-card">
                     <div class="comment-card-top">
                         <div class="comment-avatar" th:text="${#strings.substring(comment.user.username, 0, 1)}">U</div>
                         <div>

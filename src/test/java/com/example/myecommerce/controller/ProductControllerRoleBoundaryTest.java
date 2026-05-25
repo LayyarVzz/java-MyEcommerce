@@ -112,7 +112,7 @@ class ProductControllerRoleBoundaryTest {
         when(productCommentService.findLikedCommentIds(customer, List.of(comment))).thenReturn(List.of(31L));
 
         Model model = new ExtendedModelMap();
-        String view = controller.productDetail(7L, model, authentication("customer", "ROLE_USER"));
+        String view = controller.productDetail(7L, null, model, authentication("customer", "ROLE_USER"));
 
         assertThat(view).isEqualTo("product-detail");
         assertThat(model.asMap()).containsEntry("product", product);
@@ -124,6 +124,29 @@ class ProductControllerRoleBoundaryTest {
         assertThat(model.asMap()).containsEntry("commentCount", 5L);
         assertThat(model.asMap()).containsEntry("hasMoreComments", true);
         assertThat(model.asMap()).containsEntry("likedCommentIds", List.of(31L));
+    }
+
+    @Test
+    void productDetailPinsNewlySubmittedCommentWhenRedirectCarriesId() {
+        User customer = user(21L, "customer");
+        Product product = product(7L, "台灯", "家居");
+        ProductComment highlighted = comment(31L, product, customer, 8);
+        ProductComment newComment = comment(33L, product, customer, 0);
+
+        when(productService.getProductById(7L)).thenReturn(product);
+        when(userService.getCurrentUser("customer")).thenReturn(customer);
+        when(recommendationService.recommendForContext(customer, null, "家居", 4)).thenReturn(List.of());
+        when(productCommentService.getHighlightedComments(product, 3)).thenReturn(List.of(highlighted));
+        when(productCommentService.countByProduct(product)).thenReturn(2L);
+        when(productCommentService.findCommentForProduct(33L, product)).thenReturn(java.util.Optional.of(newComment));
+        when(productCommentService.findLikedCommentIds(customer, List.of(highlighted, newComment))).thenReturn(List.of());
+
+        Model model = new ExtendedModelMap();
+        String view = controller.productDetail(7L, 33L, model, authentication("customer", "ROLE_USER"));
+
+        assertThat(view).isEqualTo("product-detail");
+        assertThat(model.asMap()).containsEntry("newComment", newComment);
+        verify(productCommentService).findLikedCommentIds(customer, List.of(highlighted, newComment));
     }
 
     private User user(Long id, String username) {
