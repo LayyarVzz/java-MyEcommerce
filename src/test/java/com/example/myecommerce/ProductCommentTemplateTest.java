@@ -15,6 +15,7 @@ class ProductCommentTemplateTest {
         String html = Files.readString(Path.of("src/main/resources/templates/product-detail.html"));
 
         assertThat(html).contains("id=\"comments\"");
+        assertThat(html).contains("th:if=\"${newComment != null}\"");
         assertThat(html).contains("th:each=\"comment : ${highlightedComments}\"");
         assertThat(html).contains("th:action=\"@{/products/{productId}/comments(productId=${product.id})}\"");
         assertThat(html).contains("name=\"content\"");

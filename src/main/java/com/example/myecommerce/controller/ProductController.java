@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -89,6 +90,7 @@ public class ProductController {
 
     @GetMapping("/products/{id}")
     public String productDetail(@PathVariable Long id,
+                                @RequestParam(required = false) Long newCommentId,
                                 Model model,
                                 Authentication authentication) {
         Product product = productService.getProductById(id);
@@ -107,11 +109,17 @@ public class ProductController {
         model.addAttribute("product", product);
         model.addAttribute("relatedProducts", recommendationService.recommendForContext(currentUser, null, product.getCategory(), 4));
         List<ProductComment> highlightedComments = productCommentService.getHighlightedComments(product, 3);
+        ProductComment newComment = productCommentService.findCommentForProduct(newCommentId, product).orElse(null);
+        List<ProductComment> likeScopeComments = new ArrayList<>(highlightedComments);
+        if (newComment != null && highlightedComments.stream().noneMatch(comment -> comment.getId().equals(newComment.getId()))) {
+            likeScopeComments.add(newComment);
+        }
         long commentCount = productCommentService.countByProduct(product);
         model.addAttribute("highlightedComments", highlightedComments);
+        model.addAttribute("newComment", newComment);
         model.addAttribute("commentCount", commentCount);
         model.addAttribute("hasMoreComments", commentCount > highlightedComments.size());
-        model.addAttribute("likedCommentIds", productCommentService.findLikedCommentIds(currentUser, highlightedComments));
+        model.addAttribute("likedCommentIds", productCommentService.findLikedCommentIds(currentUser, likeScopeComments));
         model.addAttribute("username", username);
         model.addAttribute("userBalance", balance);
         model.addAttribute("loggedIn", loggedIn);

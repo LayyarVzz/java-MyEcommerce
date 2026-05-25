@@ -86,6 +86,31 @@ class ProductCommentServiceTest {
     }
 
     @Test
+    void findCommentForProductReturnsOnlyMatchingProductComment() {
+        Product product = product(7L);
+        ProductComment comment = comment(11L, product, user(2L, "buyer"), 0);
+
+        when(commentRepository.findById(11L)).thenReturn(Optional.of(comment));
+
+        Optional<ProductComment> result = service.findCommentForProduct(11L, product);
+
+        assertThat(result).contains(comment);
+    }
+
+    @Test
+    void findCommentForProductRejectsCommentFromAnotherProduct() {
+        Product product = product(7L);
+        Product otherProduct = product(8L);
+        ProductComment comment = comment(11L, otherProduct, user(2L, "buyer"), 0);
+
+        when(commentRepository.findById(11L)).thenReturn(Optional.of(comment));
+
+        Optional<ProductComment> result = service.findCommentForProduct(11L, product);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     void likeCommentIncrementsOnlyOnceForAnotherUsersComment() {
         Product product = product(7L);
         User author = user(2L, "author");

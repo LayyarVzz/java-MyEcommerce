@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductCommentService {
@@ -51,6 +52,16 @@ public class ProductCommentService {
     @Transactional(readOnly = true)
     public long countByProduct(Product product) {
         return commentRepository.countByProduct(product);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<ProductComment> findCommentForProduct(Long commentId, Product product) {
+        if (commentId == null || product == null || product.getId() == null) {
+            return Optional.empty();
+        }
+        return commentRepository.findById(commentId)
+                .filter(comment -> comment.getProduct() != null)
+                .filter(comment -> product.getId().equals(comment.getProduct().getId()));
     }
 
     @Transactional

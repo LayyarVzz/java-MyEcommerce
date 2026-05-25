@@ -651,6 +651,12 @@ body.auth-page::before {
     transform: translateY(-2px);
 }
 
+.comment-card-new {
+    border-color: rgba(180, 106, 60, 0.38);
+    background:
+        linear-gradient(135deg, rgba(180, 106, 60, 0.12), rgba(255, 250, 241, 0.95));
+}
+
 .comment-card-top,
 .comment-actions {
     display: flex;
@@ -683,6 +689,17 @@ body.auth-page::before {
     color: var(--store-muted);
     font-size: 0.78rem;
     margin-top: 0.12rem;
+}
+
+.comment-fresh-badge {
+    margin-left: auto;
+    color: var(--store-paper-strong);
+    background: var(--store-copper);
+    border-radius: 999px;
+    padding: 0.28rem 0.62rem;
+    font-size: 0.75rem;
+    font-weight: 900;
+    white-space: nowrap;
 }
 
 .comment-content {
