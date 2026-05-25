@@ -9,8 +9,8 @@ import com.example.myecommerce.repository.UserActivityRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +34,26 @@ public class RecommendationService {
 
     public List<Product> recommendForUser(User user, int limit) {
         List<Product> availableProducts = productService.getAvailableProducts();
+        Map<Long, Product> availableProductById = availableProducts.stream()
+                .filter(product -> product.getId() != null)
+                .collect(Collectors.toMap(Product::getId, product -> product, (left, right) -> left, LinkedHashMap::new));
         List<UserActivity> activities = userActivityRepository.findByUserIdOrderByTimestampDesc(user.getId());
 
         Set<Long> interactedProductIds = activities.stream()
                 .map(UserActivity::getProductId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
+
+        LinkedHashSet<Product> recommendations = new LinkedHashSet<>();
+        recommendAlsoBought(interactedProductIds, availableProductById).forEach(recommendations::add);
+        if (recommendations.size() >= limit) {
+            return limitAndExcludeInteracted(recommendations, interactedProductIds, limit);
+        }
+
+        recommendByCollaborativeFiltering(user, interactedProductIds, availableProductById).forEach(recommendations::add);
+        if (recommendations.size() >= limit) {
+            return limitAndExcludeInteracted(recommendations, interactedProductIds, limit);
+        }
 
         List<String> preferredCategories = activities.stream()
                 .map(UserActivity::getProductCategory)
@@ -51,18 +65,16 @@ public class RecommendationService {
                 .map(Map.Entry::getKey)
                 .toList();
 
-        LinkedHashSet<Product> recommendations = new LinkedHashSet<>();
         for (String category : preferredCategories) {
             availableProducts.stream()
                     .filter(product -> category.equals(normalizeCategory(product.getCategory())))
                     .filter(product -> !interactedProductIds.contains(product.getId()))
                     .forEach(recommendations::add);
             if (recommendations.size() >= limit) {
-                return recommendations.stream().limit(limit).toList();
+                return limitAndExcludeInteracted(recommendations, interactedProductIds, limit);
             }
         }
 
-        recommendByCollaborativeFiltering(interactedProductIds, availableProducts).forEach(recommendations::add);
         if (recommendations.size() < limit) {
             recommendPopularProducts(limit).forEach(recommendations::add);
         }
@@ -70,10 +82,7 @@ public class RecommendationService {
             recommendations.addAll(availableProducts);
         }
 
-        return recommendations.stream()
-                .filter(product -> !interactedProductIds.contains(product.getId()))
-                .limit(limit)
-                .toList();
+        return limitAndExcludeInteracted(recommendations, interactedProductIds, limit);
     }
 
     public List<Product> recommendPopularProducts(int limit) {
@@ -135,29 +144,97 @@ public class RecommendationService {
                 .toList();
     }
 
-    private List<Product> recommendByCollaborativeFiltering(Set<Long> interactedProductIds, List<Product> availableProducts) {
+    private List<Product> recommendAlsoBought(Set<Long> interactedProductIds, Map<Long, Product> availableProductById) {
         if (interactedProductIds.isEmpty()) {
             return List.of();
         }
 
-        Set<Long> availableIds = availableProducts.stream()
-                .map(Product::getId)
-                .collect(Collectors.toSet());
-
-        Set<Long> relatedOrderIds = orderItemRepository.findAll().stream()
-                .filter(item -> interactedProductIds.contains(item.getProduct().getId()))
+        List<OrderItem> orderItems = orderItemRepository.findAll();
+        Set<Long> relatedOrderIds = orderItems.stream()
+                .filter(item -> item.getProduct() != null && interactedProductIds.contains(item.getProduct().getId()))
+                .filter(item -> item.getOrder() != null && item.getOrder().getId() != null)
                 .map(item -> item.getOrder().getId())
                 .collect(Collectors.toSet());
 
-        Map<Product, Integer> relatedProducts = orderItemRepository.findAll().stream()
-                .filter(item -> relatedOrderIds.contains(item.getOrder().getId()))
+        Map<Product, Double> relatedProducts = orderItems.stream()
+                .filter(item -> item.getOrder() != null && relatedOrderIds.contains(item.getOrder().getId()))
+                .filter(item -> item.getProduct() != null && item.getProduct().getId() != null)
                 .filter(item -> !interactedProductIds.contains(item.getProduct().getId()))
-                .filter(item -> availableIds.contains(item.getProduct().getId()))
-                .collect(Collectors.groupingBy(OrderItem::getProduct, Collectors.summingInt(OrderItem::getQuantity)));
+                .filter(item -> availableProductById.containsKey(item.getProduct().getId()))
+                .collect(Collectors.groupingBy(
+                        item -> availableProductById.get(item.getProduct().getId()),
+                        Collectors.summingDouble(item -> item.getQuantity() == null ? 1 : Math.max(item.getQuantity(), 1))
+                ));
 
-        return relatedProducts.entrySet().stream()
-                .sorted(Map.Entry.<Product, Integer>comparingByValue().reversed())
+        return sortedProductsByScore(relatedProducts);
+    }
+
+    private List<Product> recommendByCollaborativeFiltering(User user,
+                                                            Set<Long> interactedProductIds,
+                                                            Map<Long, Product> availableProductById) {
+        if (user == null || user.getId() == null || interactedProductIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<UserActivity> allActivities = userActivityRepository.findAll();
+        Map<Long, List<UserActivity>> activitiesByUser = allActivities.stream()
+                .filter(activity -> activity.getUser() != null && activity.getUser().getId() != null)
+                .collect(Collectors.groupingBy(activity -> activity.getUser().getId()));
+
+        Map<Long, Double> similarUserScores = new HashMap<>();
+        for (Map.Entry<Long, List<UserActivity>> entry : activitiesByUser.entrySet()) {
+            Long otherUserId = entry.getKey();
+            if (user.getId().equals(otherUserId)) {
+                continue;
+            }
+
+            Set<Long> otherProducts = entry.getValue().stream()
+                    .map(UserActivity::getProductId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            long overlap = otherProducts.stream().filter(interactedProductIds::contains).count();
+            if (overlap > 0) {
+                similarUserScores.put(otherUserId, overlap * 10.0);
+            }
+        }
+
+        Map<Product, Double> productScores = new HashMap<>();
+        for (UserActivity activity : allActivities) {
+            if (!"PURCHASE_PRODUCT".equals(activity.getActivityType())
+                    || activity.getUser() == null
+                    || activity.getUser().getId() == null
+                    || activity.getProductId() == null
+                    || interactedProductIds.contains(activity.getProductId())) {
+                continue;
+            }
+
+            Double userScore = similarUserScores.get(activity.getUser().getId());
+            Product product = availableProductById.get(activity.getProductId());
+            if (userScore == null || product == null) {
+                continue;
+            }
+
+            double quantityScore = activity.getQuantity() == null ? 1 : Math.max(activity.getQuantity(), 1);
+            double amountScore = activity.getAmount() == null ? 0 : Math.min(activity.getAmount() / 100.0, 20);
+            productScores.merge(product, userScore + quantityScore + amountScore, Double::sum);
+        }
+
+        return sortedProductsByScore(productScores);
+    }
+
+    private List<Product> sortedProductsByScore(Map<Product, Double> productScores) {
+        return productScores.entrySet().stream()
+                .sorted(Map.Entry.<Product, Double>comparingByValue().reversed())
                 .map(Map.Entry::getKey)
+                .toList();
+    }
+
+    private List<Product> limitAndExcludeInteracted(LinkedHashSet<Product> recommendations,
+                                                    Set<Long> interactedProductIds,
+                                                    int limit) {
+        return recommendations.stream()
+                .filter(product -> product.getId() == null || !interactedProductIds.contains(product.getId()))
+                .limit(limit)
                 .toList();
     }
 

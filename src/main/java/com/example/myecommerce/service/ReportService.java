@@ -100,9 +100,10 @@ public class ReportService {
                 .limit(10)
                 .toList();
         StockSummary stockSummary = buildStockSummary();
-        List<String> anomalyWarnings = buildAnomalyWarnings(allPeriodOrders, orders, lowStockProducts);
-
+        AnomalyReport anomalyReport = buildAnomalyReport(allPeriodOrders, orders, lowStockProducts);
         BigDecimal forecastRevenue = forecastNextPeriodRevenue(dailyTrend);
+        String trendAssessment = assessTrend(dailyTrend);
+        String forecastDescription = buildForecastDescription(dailyTrend);
 
         Map<String, Object> reportData = new LinkedHashMap<>();
         reportData.put("totalRevenue", totalRevenue);
@@ -116,10 +117,21 @@ public class ReportService {
         reportData.put("monthlyTrend", monthlyTrend);
         reportData.put("dailyTrendLabels", dailyTrend.stream().map(TrendData::getLabel).toList());
         reportData.put("dailyTrendRevenue", dailyTrend.stream().map(TrendData::getRevenue).toList());
+        reportData.put("dailyTrendOrders", dailyTrend.stream().map(TrendData::getOrderCount).toList());
+        reportData.put("weeklyTrendLabels", weeklyTrend.stream().map(TrendData::getLabel).toList());
+        reportData.put("weeklyTrendRevenue", weeklyTrend.stream().map(TrendData::getRevenue).toList());
+        reportData.put("weeklyTrendOrders", weeklyTrend.stream().map(TrendData::getOrderCount).toList());
+        reportData.put("monthlyTrendLabels", monthlyTrend.stream().map(TrendData::getLabel).toList());
+        reportData.put("monthlyTrendRevenue", monthlyTrend.stream().map(TrendData::getRevenue).toList());
+        reportData.put("monthlyTrendOrders", monthlyTrend.stream().map(TrendData::getOrderCount).toList());
         reportData.put("lowStockProducts", lowStockProducts);
         reportData.put("stockSummary", stockSummary);
-        reportData.put("anomalyWarnings", anomalyWarnings);
+        reportData.put("anomalyWarnings", anomalyReport.warnings());
+        reportData.put("anomalyLevel", anomalyReport.level());
+        reportData.put("anomalyLevelLabel", anomalyReport.label());
         reportData.put("forecastRevenue", forecastRevenue);
+        reportData.put("forecastDescription", forecastDescription);
+        reportData.put("trendAssessment", trendAssessment);
         reportData.put("startDate", startDate);
         reportData.put("endDate", endDate);
 
@@ -195,11 +207,13 @@ public class ReportService {
         return new StockSummary(activeCount, discontinuedCount, lowStockCount);
     }
 
-    private List<String> buildAnomalyWarnings(List<Order> allPeriodOrders, List<Order> effectiveOrders, List<Product> lowStockProducts) {
+    private AnomalyReport buildAnomalyReport(List<Order> allPeriodOrders, List<Order> effectiveOrders, List<Product> lowStockProducts) {
         List<String> warnings = new ArrayList<>();
+        int riskScore = 0;
         long cancelledCount = allPeriodOrders.stream().filter(order -> "已取消".equals(order.getStatus())).count();
         if (!allPeriodOrders.isEmpty() && cancelledCount * 1.0 / allPeriodOrders.size() >= 0.3) {
             warnings.add("取消订单占比较高，建议检查商品库存、价格或支付流程。");
+            riskScore += cancelledCount * 1.0 / allPeriodOrders.size() >= 0.5 ? 2 : 1;
         }
 
         BigDecimal averageOrderAmount = effectiveOrders.isEmpty()
@@ -207,29 +221,93 @@ public class ReportService {
                 : sumRevenue(effectiveOrders).divide(BigDecimal.valueOf(effectiveOrders.size()), 2, RoundingMode.HALF_UP);
         effectiveOrders.stream()
                 .filter(order -> averageOrderAmount.compareTo(BigDecimal.ZERO) > 0)
-                .filter(order -> order.getTotalAmount().compareTo(averageOrderAmount.multiply(BigDecimal.valueOf(2))) > 0)
+                .filter(order -> order.getTotalAmount().compareTo(averageOrderAmount.multiply(BigDecimal.valueOf(4))) > 0)
                 .limit(3)
                 .forEach(order -> warnings.add("订单 #" + order.getId() + " 金额明显高于平均值，建议重点关注。"));
+        if (warnings.stream().anyMatch(warning -> warning.contains("金额明显高于平均值"))) {
+            riskScore += 1;
+        }
 
         lowStockProducts.stream()
                 .limit(3)
                 .forEach(product -> warnings.add("商品「" + product.getName() + "」库存不足，当前库存 " + product.getStock() + "。"));
+        if (!lowStockProducts.isEmpty()) {
+            riskScore += lowStockProducts.size() >= 3 ? 2 : 1;
+        }
 
         if (warnings.isEmpty()) {
             warnings.add("当前统计周期未发现明显销售异常。");
         }
-        return warnings;
+        return new AnomalyReport(classifyAnomalyLevel(riskScore), warnings);
+    }
+
+    private String classifyAnomalyLevel(int riskScore) {
+        if (riskScore >= 2) {
+            return "HIGH";
+        }
+        if (riskScore == 1) {
+            return "MEDIUM";
+        }
+        return "NORMAL";
     }
 
     private BigDecimal forecastNextPeriodRevenue(List<TrendData> dailyTrend) {
         if (dailyTrend.isEmpty()) {
             return BigDecimal.ZERO;
         }
-        BigDecimal totalRevenue = dailyTrend.stream()
+        List<TrendData> recentTrend = dailyTrend.size() <= 7
+                ? dailyTrend
+                : dailyTrend.subList(dailyTrend.size() - 7, dailyTrend.size());
+        BigDecimal weightedRevenue = BigDecimal.ZERO;
+        int weightSum = 0;
+        for (int i = 0; i < recentTrend.size(); i++) {
+            int weight = i + 1;
+            weightedRevenue = weightedRevenue.add(recentTrend.get(i).getRevenue().multiply(BigDecimal.valueOf(weight)));
+            weightSum += weight;
+        }
+        BigDecimal weightedDailyAverage = weightedRevenue.divide(BigDecimal.valueOf(weightSum), 2, RoundingMode.HALF_UP);
+        return weightedDailyAverage.multiply(BigDecimal.valueOf(7)).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private String assessTrend(List<TrendData> dailyTrend) {
+        if (dailyTrend.size() < 2) {
+            return "数据不足";
+        }
+        int midpoint = dailyTrend.size() / 2;
+        BigDecimal earlyRevenue = dailyTrend.subList(0, midpoint).stream()
                 .map(TrendData::getRevenue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        return totalRevenue.divide(BigDecimal.valueOf(dailyTrend.size()), 2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(7));
+        BigDecimal recentRevenue = dailyTrend.subList(midpoint, dailyTrend.size()).stream()
+                .map(TrendData::getRevenue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (earlyRevenue.compareTo(BigDecimal.ZERO) == 0) {
+            return recentRevenue.compareTo(BigDecimal.ZERO) > 0 ? "快速上升" : "基本平稳";
+        }
+
+        BigDecimal changeRate = recentRevenue.subtract(earlyRevenue)
+                .divide(earlyRevenue, 4, RoundingMode.HALF_UP);
+        if (changeRate.compareTo(BigDecimal.valueOf(0.30)) >= 0) {
+            return "快速上升";
+        }
+        if (changeRate.compareTo(BigDecimal.valueOf(0.05)) >= 0) {
+            return "小幅上升";
+        }
+        if (changeRate.compareTo(BigDecimal.valueOf(-0.30)) <= 0) {
+            return "快速下降";
+        }
+        if (changeRate.compareTo(BigDecimal.valueOf(-0.05)) <= 0) {
+            return "小幅下降";
+        }
+        return "基本平稳";
+    }
+
+    private String buildForecastDescription(List<TrendData> dailyTrend) {
+        if (dailyTrend.isEmpty()) {
+            return "暂无销售数据，预测值按 0 处理。";
+        }
+        int days = Math.min(dailyTrend.size(), 7);
+        return "基于最近 " + days + " 天销售额做加权移动平均，最近销售表现权重更高。";
     }
 
     private String normalizeCategory(String category) {
@@ -289,6 +367,16 @@ public class ReportService {
             this.activeCount = activeCount;
             this.discontinuedCount = discontinuedCount;
             this.lowStockCount = lowStockCount;
+        }
+    }
+
+    private record AnomalyReport(String level, List<String> warnings) {
+        private String label() {
+            return switch (level) {
+                case "HIGH" -> "高风险";
+                case "MEDIUM" -> "需关注";
+                default -> "正常";
+            };
         }
     }
 }
