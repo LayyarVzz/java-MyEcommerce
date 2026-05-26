@@ -1,6 +1,6 @@
 # MyEcommerce
 
-MyEcommerce 是一个基于 Spring Boot 的在线购物网站系统，前端使用 Thymeleaf 模板和 Bootstrap 5，后端使用 Spring Data JPA、Spring Security 和 MySQL。项目包含用户端购物流程、后台商品/订单/客户管理、销售报表、用户行为记录与商品推荐等功能。
+MyEcommerce 是一个基于 Spring Boot 的在线购物网站系统，前端使用 Thymeleaf 模板和 Bootstrap 5，后端使用 Spring Data JPA、Spring Security 和 MySQL。项目包含用户端购物流程、销售工作台商品与订单处理、管理后台销售账号与经营报表管理、用户行为记录与商品推荐等功能。
 
 ## 技术栈
 
@@ -24,11 +24,16 @@ MyEcommerce 是一个基于 Spring Boot 的在线购物网站系统，前端使�
 
 ### 管理后台
 
-- 商品管理：新增、编辑、上下架、库存维护
-- 订单管理：查看订单、处理订单状态
-- 客户管理：客户列表、客户详情、角色/余额维护、销售账号管理、密码重置
-- 行为分析：用户浏览、下单、购物车、后台操作等活动记录
+- 销售账号管理：新增、删除销售人员账号和重置密码
+- 用户与销售信息查看：客户列表、客户详情、角色/余额维护
+- 经营监控：用户浏览、下单、购物车、后台操作等活动记录
 - 销售报表：指定日期区间的销售统计和可视化页面
+
+### 销售工作台
+
+- 商品管理：新增、编辑、上下架、库存维护
+- 订单处理：查看订单、处理订单状态
+- 销售状态监控：商品库存、待处理订单和经营摘要
 
 ## 项目结构
 
@@ -73,14 +78,17 @@ MyEcommerce 是一个基于 Spring Boot 的在线购物网站系统，前端使�
 
 ### 后台页面
 
-- `src/main/resources/templates/admin/product-list.html`：商品列表
-- `src/main/resources/templates/admin/product-form.html`：商品表单
-- `src/main/resources/templates/admin/order-list.html`：订单列表
-- `src/main/resources/templates/admin/order-detail.html`：订单详情
 - `src/main/resources/templates/admin/customer-list.html`：客户列表
 - `src/main/resources/templates/admin/customer-detail.html`：客户详情
 - `src/main/resources/templates/admin/sales-report.html`：销售报表
 - `src/main/resources/templates/fragments/navbar.html`：公共导航栏
+
+### 销售工作台页面
+
+- `src/main/resources/templates/sales/product-list.html`：商品列表
+- `src/main/resources/templates/sales/product-form.html`：商品表单
+- `src/main/resources/templates/sales/order-list.html`：订单列表
+- `src/main/resources/templates/sales/order-detail.html`：订单详情
 
 ## 配置说明
 
@@ -98,7 +106,7 @@ MyEcommerce 是一个基于 Spring Boot 的在线购物网站系统，前端使�
 注意事项：
 
 - 本地运行前请确认 MySQL 已创建 `ecommerce_db` 数据库，或使用 Docker Compose 启动 MySQL。
-- 邮件服务使用 QQ SMTP 配置，部署前应替换为自己的邮箱账号和授权码，避免提交真实凭据。
+- 邮件服务默认使用 QQ SMTP。邮件授权码请放在项目根目录的 `.env` 文件中，例如 `MAIL_PASSWORD=你的授权码`；该文件已被 Git 忽略。仓库只保留 `.env.example` 作为模板。遇到本机代理或 DNS 导致 `smtp.qq.com` 解析到 `198.18.*` 假 IP、JavaMail 报 `SSL peer shut down incorrectly` 时，可在 `.env` 中覆盖 `MAIL_HOST`、`MAIL_PORT`、`MAIL_USERNAME` 和 `MAIL_NICKNAME`，或调整代理规则让 SMTP 直连。
 - 如果使用 Docker Compose 同时运行应用和 MySQL，应用容器内的数据库地址应使用 `mysql` 服务名，例如 `jdbc:mysql://mysql:3306/ecommerce_db`。
 
 ## 本地运行
@@ -172,10 +180,9 @@ docker compose down
 ### 管理后台
 
 - `/admin/dashboard`：管理员控制台，仅允许 `ADMIN`
-- `/admin/products`：商品管理，仅允许 `ADMIN`
-- `/admin/orders`：订单管理，仅允许 `ADMIN`
 - `/admin/reports`：销售报表，仅允许 `ADMIN`
-- `/admin/customers`：客户管理，仅允许 `ADMIN`
+- `/admin/customers`：用户与销售账号管理，仅允许 `ADMIN`
+- `/admin/activities`：数据日志，仅允许 `ADMIN`
 
 ### 销售工作台
 

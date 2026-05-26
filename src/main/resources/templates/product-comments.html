@@ -19,7 +19,7 @@
         </ol>
     </nav>
 
-    <section class="comment-page-hero">
+    <section class="comment-page-hero dark-surface">
         <div>
             <span class="comment-kicker"><i class="bi bi-chat-heart me-1"></i>全部评论</span>
             <h1 th:text="${product.name}">商品名称</h1>
@@ -32,13 +32,17 @@
     </section>
 
     <section id="comments" class="comment-section comment-section-full comment-stream-layout">
-        <nav class="comment-rating-tabs" aria-label="评论分类筛选">
-            <a th:href="@{/products/{productId}/comments(productId=${product.id})}"
+        <nav class="comment-rating-tabs" aria-label="评论分类筛选" data-rating-filter-tabs>
+            <a th:href="@{/products/{productId}/comments(productId=${product.id})} + '#comments'"
+               data-rating-filter-link
+               data-rating-value="ALL"
                th:classappend="${selectedRating == null} ? ' active' : ''">
                 全部 <span data-comment-count="total" th:text="${commentStats.total}">0</span>
             </a>
             <a th:each="ratingOption : ${ratingOptions}"
-               th:href="@{/products/{productId}/comments(productId=${product.id}, rating=${ratingOption.name()})}"
+               th:href="@{/products/{productId}/comments(productId=${product.id}, rating=${ratingOption.name()})} + '#comments'"
+               data-rating-filter-link
+               th:data-rating-value="${ratingOption.name()}"
                th:classappend="${selectedRating == ratingOption} ? ' active' : ''">
                 <span th:text="${ratingOption.label}">好评</span>
                 <span th:if="${ratingOption.name() == 'GOOD'}" data-comment-count="good" th:text="${commentStats.good}">0</span>

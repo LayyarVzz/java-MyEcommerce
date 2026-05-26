@@ -5,6 +5,10 @@ target/
 *.class
 *.log
 
+.env
+.env.*
+!.env.example
+
 upload/
 !src/main/resources/static/upload/
 !src/main/resources/static/upload/**

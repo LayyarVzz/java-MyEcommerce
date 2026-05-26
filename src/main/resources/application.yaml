@@ -1,28 +1,28 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: 8080
 
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: MyEcommerce
-  # Example MySQL configuration. Override these values with environment variables in real deployments.
+  # mysql
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/ecommerce_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
-    # Docker Compose example:
-    # DB_URL=jdbc:mysql://mysql:3306/ecommerce_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:mysql}
+    url: jdbc:mysql://localhost:3306/ecommerce_db
+    #    url: jdbc:mysql://mysql:3306/ecommerce_db
+    username: root
+    password: mysql
     driver-class-name: com.mysql.cj.jdbc.Driver
-  # Example mail configuration. Do not commit real mailbox passwords or authorization codes.
+  # mail
   mail:
-    protocol: ${MAIL_PROTOCOL:smtps}
-    host: ${MAIL_HOST:smtp.example.com}
+    protocol: smtp
+    host: ${MAIL_HOST:smtp.qq.com}
     port: ${MAIL_PORT:465}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
     properties:
-      "[mail.smtp.socketFactory.class]": javax.net.ssl.SSLSocketFactory
-      "[mail.smtp.socketFactory.fallback]": false
-      "[mail.smtp.socketFactory.port]": ${MAIL_PORT:465}
+      "[mail.smtp.auth]": true
+      "[mail.smtp.ssl.enable]": true
       "[mail.smtp.connectiontimeout]": 5000
       "[mail.smtp.timeout]": 3000
       "[mail.smtp.writetimeout]": 5000
@@ -30,21 +30,21 @@ spring:
   # JPA
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
-    show-sql: ${JPA_SHOW_SQL:true}
+      ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.MySQL8Dialect
   # Thymeleaf
   thymeleaf:
     cache: false
 # MySQL
-logging.level.org.hibernate.SQL: ${HIBERNATE_SQL_LOG_LEVEL:debug}
+logging.level.org.hibernate.SQL: debug
 
 app:
   product-images:
-    localize-on-startup: ${PRODUCT_IMAGES_LOCALIZE_ON_STARTUP:true}
-    upload-root: ${PRODUCT_IMAGES_UPLOAD_ROOT:upload/}
-    storage-path: ${PRODUCT_IMAGES_STORAGE_PATH:upload/products}
-    public-path: ${PRODUCT_IMAGES_PUBLIC_PATH:/upload/products}
+    localize-on-startup: true
+    upload-root: upload/
+    storage-path: upload/products
+    public-path: /upload/products

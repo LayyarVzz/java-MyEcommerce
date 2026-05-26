@@ -306,7 +306,7 @@
 
 <th:block th:replace="~{fragments/navbar :: navbar(activePage='products')}"></th:block>
 
-<section class="storefront-hero">
+<section class="storefront-hero dark-surface">
     <div class="container">
         <div class="row align-items-center g-4">
             <div class="col-lg-8">
@@ -326,22 +326,34 @@
                 </div>
             </div>
             <div class="col-lg-4">
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <strong th:text="${#lists.size(products)}">0</strong>
-                        <span>当前商品</span>
+                <div class="hero-service-panel" aria-label="商城服务承诺">
+                    <div class="hero-service-card">
+                        <i class="bi bi-patch-check"></i>
+                        <div>
+                            <strong>正品保障</strong>
+                            <span>严选入库商品</span>
+                        </div>
                     </div>
-                    <div class="hero-stat">
-                        <strong th:text="${categories == null ? 0 : #lists.size(categories)}">0</strong>
-                        <span>可选分类</span>
+                    <div class="hero-service-card">
+                        <i class="bi bi-truck"></i>
+                        <div>
+                            <strong>快速发货</strong>
+                            <span>订单及时处理</span>
+                        </div>
                     </div>
-                    <div class="hero-stat">
-                        <strong>24h</strong>
-                        <span>订单流转</span>
+                    <div class="hero-service-card">
+                        <i class="bi bi-shield-lock"></i>
+                        <div>
+                            <strong>安全支付</strong>
+                            <span>账户余额保护</span>
+                        </div>
                     </div>
-                    <div class="hero-stat">
-                        <strong th:text="${loggedIn ? username : '游客'}">游客</strong>
-                        <span>当前身份</span>
+                    <div class="hero-service-card">
+                        <i class="bi bi-headset"></i>
+                        <div>
+                            <strong>售后无忧</strong>
+                            <span>订单全程可查</span>
+                        </div>
                     </div>
                 </div>
             </div>

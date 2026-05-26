@@ -29,4 +29,16 @@ class ProductBrowseDurationTemplateTest {
         assertThat(html).contains("hasRole(''USER'')");
         assertThat(html).doesNotContain("isAuthenticated()");
     }
+
+    @Test
+    void productsHeroUsesCommerceServicePromisesInsteadOfOperationalStats() throws IOException {
+        String html = Files.readString(Path.of("src/main/resources/templates/products.html"));
+
+        assertThat(html).contains("hero-service-panel");
+        assertThat(html).contains("正品保障");
+        assertThat(html).contains("快速发货");
+        assertThat(html).doesNotContain("hero-stats");
+        assertThat(html).doesNotContain("当前商品");
+        assertThat(html).doesNotContain("当前身份");
+    }
 }

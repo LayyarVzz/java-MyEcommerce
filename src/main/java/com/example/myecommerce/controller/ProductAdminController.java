@@ -18,8 +18,8 @@ import java.util.List;
 
 // ProductAdminController.java
 @Controller
-@RequestMapping({"/admin/products", "/sales/products"})
-@PreAuthorize("hasAnyRole('ADMIN', 'SALES')")
+@RequestMapping("/sales/products")
+@PreAuthorize("hasRole('SALES')")
 public class ProductAdminController {
     private final ProductService productService;
     private final UserService userService;

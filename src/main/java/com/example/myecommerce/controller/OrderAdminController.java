@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping({"/admin/orders", "/sales/orders"})
-@PreAuthorize("hasAnyRole('ADMIN', 'SALES')")
+@RequestMapping("/sales/orders")
+@PreAuthorize("hasRole('SALES')")
 public class OrderAdminController {
 
     private final OrderService orderService;

@@ -3,10 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentsList = document.querySelector('[data-comments-list]');
     const messageBox = document.querySelector('[data-comment-message]');
 
-    if (!form || !commentsList) {
-        return;
-    }
-
     const showMessage = (message, success = true) => {
         if (!messageBox) {
             return;
@@ -85,6 +81,75 @@ document.addEventListener('DOMContentLoaded', () => {
         article.appendChild(actions);
         return article;
     };
+
+    const cloneChildren = (source) => Array.from(source.childNodes).map((node) => node.cloneNode(true));
+
+    const setFilterLoading = (loading) => {
+        const filterTabs = document.querySelector('[data-rating-filter-tabs]');
+        const activeList = document.querySelector('[data-comments-list]');
+
+        if (filterTabs) {
+            filterTabs.setAttribute('aria-busy', String(loading));
+        }
+        if (activeList) {
+            activeList.classList.toggle('is-loading', loading);
+        }
+    };
+
+    const replaceRatingFilterContent = (documentFragment) => {
+        const currentTabs = document.querySelector('[data-rating-filter-tabs]');
+        const nextTabs = documentFragment.querySelector('[data-rating-filter-tabs]');
+        const currentList = document.querySelector('[data-comments-list]');
+        const nextList = documentFragment.querySelector('[data-comments-list]');
+
+        if (!currentTabs || !nextTabs || !currentList || !nextList) {
+            throw new Error('暂时无法更新评价筛选');
+        }
+
+        currentTabs.replaceChildren(...cloneChildren(nextTabs));
+        currentList.dataset.selectedRating = nextList.dataset.selectedRating || 'ALL';
+        currentList.replaceChildren(...cloneChildren(nextList));
+    };
+
+    document.addEventListener('click', async (event) => {
+        const link = event.target.closest('[data-rating-filter-link]');
+        if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (link.classList.contains('active')) {
+            return;
+        }
+
+        setFilterLoading(true);
+
+        try {
+            const response = await fetch(link.href, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('评价筛选加载失败');
+            }
+
+            const html = await response.text();
+            const nextDocument = new DOMParser().parseFromString(html, 'text/html');
+            replaceRatingFilterContent(nextDocument);
+            history.replaceState(null, '', link.href);
+        } catch (error) {
+            window.location.href = link.href;
+        } finally {
+            setFilterLoading(false);
+        }
+    });
+
+    if (!form || !commentsList) {
+        return;
+    }
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();

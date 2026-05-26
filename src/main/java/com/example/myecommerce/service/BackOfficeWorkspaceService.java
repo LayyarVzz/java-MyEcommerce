@@ -13,11 +13,11 @@ public class BackOfficeWorkspaceService {
     }
 
     public String productsPath(Authentication authentication) {
-        return isSales(authentication) ? "/sales/products" : "/admin/products";
+        return isSales(authentication) ? "/sales/products" : null;
     }
 
     public String ordersPath(Authentication authentication) {
-        return isSales(authentication) ? "/sales/orders" : "/admin/orders";
+        return isSales(authentication) ? "/sales/orders" : null;
     }
 
     public String reportsPath(Authentication authentication) {

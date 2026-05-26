@@ -55,7 +55,6 @@ class NativeDialogTemplateTest {
                 Path.of("src/main/resources/templates/order-history.html"),
                 Path.of("src/main/resources/templates/order-detail.html"),
                 Path.of("src/main/resources/templates/address-list.html"),
-                Path.of("src/main/resources/templates/admin/product-list.html"),
                 Path.of("src/main/resources/templates/sales/product-list.html"),
                 Path.of("src/main/resources/templates/admin/customer-list.html"),
                 Path.of("src/main/resources/templates/admin/customer-detail.html")

@@ -16,9 +16,9 @@ class BackOfficeWorkspaceServiceTest {
     void resolvesAdminViewsAndPaths() {
         var authentication = authentication("ROLE_ADMIN");
 
-        assertThat(service.resolveView(authentication, "product-list")).isEqualTo("admin/product-list");
-        assertThat(service.productsPath(authentication)).isEqualTo("/admin/products");
-        assertThat(service.ordersPath(authentication)).isEqualTo("/admin/orders");
+        assertThat(service.resolveView(authentication, "sales-report")).isEqualTo("admin/sales-report");
+        assertThat(service.productsPath(authentication)).isNull();
+        assertThat(service.ordersPath(authentication)).isNull();
         assertThat(service.reportsPath(authentication)).isEqualTo("/admin/reports");
         assertThat(service.activitiesPath(authentication)).isEqualTo("/admin/activities");
     }
