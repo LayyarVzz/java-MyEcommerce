@@ -27,7 +27,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - app-upload:/app/upload
+      - ./upload:/app/upload
     # 依赖 MySQL 服务，确保先启动 MySQL
     depends_on:
       - mysql
@@ -38,8 +38,8 @@ services:
 networks:
   ecommerce-network:
     driver: bridge
+    name: ecommerce-net
 
 # 数据卷（持久化 MySQL 数据）
 volumes:
   mysql-data:
-  app-upload:
