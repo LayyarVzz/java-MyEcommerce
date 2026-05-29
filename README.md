@@ -257,43 +257,54 @@ Docker Compose 会创建 MySQL 数据卷 `mysql-data` 用于持久化数据库�
 
 ### 访问地址
 
-部署完成后访问 `http://<服务器IP>:8080` 即可，各页面路径见下方[访问路径](#访问路径)。
+| 环境 | 地址 |
+|------|------|
+| 本地 | http://localhost:8080 |
+| 服务器 | http://134.175.18.182:8080 |
+
+各页面路径见下方[访问路径](#访问路径)。
 
 ## 访问路径
 
+> **本地**: `http://localhost:8080`　|　**服务器**: `http://134.175.18.182:8080`
+
 ### 用户端
 
-- `/`：需要认证后访问，建议从 `/products` 进入
-- `/products`：商品列表首页
-- `/products/{id}`：商品详情
-- `/products/{id}/comments`：商品全部评论
-- `/login`：登录
-- `/register`：注册
-- `/cart`：购物车，仅 `USER`
-- `/cart/checkout`：结算，仅 `USER`
-- `/orders`：订单历史，仅 `USER`
-- `/orders/{id}`：订单详情，仅 `USER`
-- `/addresses`：收货地址列表，仅 `USER`
-- `/addresses/add`：新增收货地址，仅 `USER`
-- `/activities/product-browse-duration`：商品浏览停留时长记录接口，仅 `USER`
+| 路径 | 说明 |
+|------|------|
+| `/products` | 商品列表首页 |
+| `/products/{id}` | 商品详情 |
+| `/products/{id}/comments` | 商品全部评论 |
+| `/login` | 登录页 |
+| `/register` | 注册页 |
+| `/cart` | 购物车，仅 `USER` |
+| `/cart/checkout` | 结算，仅 `USER` |
+| `/orders` | 订单历史，仅 `USER` |
+| `/orders/{id}` | 订单详情，仅 `USER` |
+| `/addresses` | 收货地址列表，仅 `USER` |
+| `/addresses/add` | 新增收货地址，仅 `USER` |
 
 ### 管理后台
 
-- `/admin/dashboard`：管理员控制台，仅 `ADMIN`
-- `/admin/customers`：用户与销售账号管理，仅 `ADMIN`
-- `/admin/customers/{id}`：客户详情、客户画像和活动日志，仅 `ADMIN`
-- `/admin/reports`：销售报表，仅 `ADMIN`
-- `/admin/activities`：数据日志，仅 `ADMIN`
+| 路径 | 说明 |
+|------|------|
+| `/admin/dashboard` | 管理员控制台，仅 `ADMIN` |
+| `/admin/customers` | 用户与销售账号管理，仅 `ADMIN` |
+| `/admin/customers/{id}` | 客户详情、客户画像和活动日志，仅 `ADMIN` |
+| `/admin/reports` | 销售报表，仅 `ADMIN` |
+| `/admin/activities` | 数据日志，仅 `ADMIN` |
 
 ### 销售工作台
 
-- `/sales/dashboard`：销售工作台，仅 `SALES`
-- `/sales/products`：商品维护，仅 `SALES`
-- `/sales/products/add`：新增商品，仅 `SALES`
-- `/sales/products/edit/{id}`：编辑商品，仅 `SALES`
-- `/sales/orders`：订单处理，仅 `SALES`
-- `/sales/orders/{id}`：订单详情，仅 `SALES`
-- `/sales/activities`：用户浏览/购买日志，仅 `SALES`
+| 路径 | 说明 |
+|------|------|
+| `/sales/dashboard` | 销售工作台，仅 `SALES` |
+| `/sales/products` | 商品维护，仅 `SALES` |
+| `/sales/products/add` | 新增商品，仅 `SALES` |
+| `/sales/products/edit/{id}` | 编辑商品，仅 `SALES` |
+| `/sales/orders` | 订单处理，仅 `SALES` |
+| `/sales/orders/{id}` | 订单详情，仅 `SALES` |
+| `/sales/activities` | 用户浏览/购买日志，仅 `SALES` |
 
 ## 预置账号
 
